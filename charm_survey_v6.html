@@ -5,7 +5,541 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CharmSurvey - 組織サーベイ管理システム</title>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CharmSurvey - 組織サーベイ管理システム</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', 'Segoe UI', sans-serif; background-color: #f5f5f5; color: #333; }
+        .admin-container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background-color: #1f4788; color: white; padding: 20px; overflow-y: auto; box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); }
+        .sidebar h2 { font-size: 18px; margin-bottom: 30px; display: flex; align-items: center; gap: 8px; }
+        .sidebar-section { margin-bottom: 25px; }
+        .sidebar-section-title { font-size: 12px; font-weight: bold; color: #aaa; margin-bottom: 12px; text-transform: uppercase; }
+        .sidebar-item { padding: 10px 15px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+        .sidebar-item:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .sidebar-item.active { background-color: #0056b3; }
+        .sidebar-item.add-btn { background-color: #28a745; text-align: center; font-weight: bold; }
+        .sidebar-item.add-btn:hover { background-color: #218838; }
+        .main-content { flex: 1; overflow-y: auto; padding: 40px; background-color: #fff; }
+        .company-header { margin-bottom: 40px; }
+        .company-header h1 { font-size: 32px; color: #1f4788; margin-bottom: 5px; }
+        .company-header p { color: #666; font-size: 14px; }
+        .dashboard-title { font-size: 28px; color: #1f4788; margin-bottom: 10px; }
+        .response-count { font-size: 14px; color: #999; margin-bottom: 30px; }
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 30px; }
+        .tab { padding: 12px 20px; cursor: pointer; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab.active { color: #1f4788; border-bottom-color: #1f4788; }
+        .tab:hover { color: #1f4788; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #333; font-size: 14px; }
+        .form-group input[type="text"], .form-group input[type="date"], .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1f4788; box-shadow: 0 0 5px rgba(31, 71, 136, 0.3); }
+        .rating-group { display: flex; gap: 10px; margin-top: 8px; }
+        .rating-option { flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: all 0.3s; font-size: 12px; }
+        .rating-option:hover { border-color: #1f4788; background-color: #f0f5ff; }
+        .rating-option input { display: none; }
+        .rating-option input:checked + label { color: #1f4788; font-weight: bold; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .btn-primary { background-color: #1f4788; color: white; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .btn-secondary { background-color: #6c757d; color: white; margin-left: 10px; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .question-block { background: white; padding: 20px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #1f4788; }
+        .question-number { font-weight: bold; color: #1f4788; margin-bottom: 10px; }
+        .qr-container { text-align: center; margin-top: 20px; }
+        #qrcode { display: inline-block; border: 1px solid #ddd; padding: 10px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table thead { background-color: #1f4788; color: white; }
+        table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        table tr:hover { background-color: #f5f5f5; }
+        .link-section { background: #f0f5ff; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+        .link-section h4 { color: #1f4788; margin-bottom: 10px; }
+        .link-input { display: flex; gap: 10px; margin-bottom: 10px; }
+        .link-input input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .link-input button { padding: 10px 15px; background-color: #1f4788; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .link-input button:hover { background-color: #0056b3; }
+        .hidden { display: none; }
+        .inline-add { display: flex; gap: 10px; margin-bottom: 15px; }
+        .inline-add input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .inline-add button { padding: 10px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .inline-add button:hover { background-color: #218838; }
+        .report-container { max-width: 100%; }
+        .slides-viewer { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 20px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+        .slides-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <div class="sidebar">
+        <h2>🎯 CharmSurvey</h2>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">ドメイン設定</div>
+            <input type="text" id="domainInput" placeholder="https://charm-survey-production.up.railway.app" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #555; border-radius: 4px; color: black;">
+            <button id="saveDomainBtn" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">保存</button>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">企業管理</div>
+            <div id="companyList"></div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="company-header">
+            <h1 id="companyName">サンプル株式会社</h1>
+        </div>
+        <div class="dashboard-title">ダッシュボード</div>
+        <div class="response-count"><span id="responseCount">0</span>名の回答者</div>
+        <div class="tabs">
+            <div class="tab active" data-tab="respondents">回答者管理</div>
+            <div class="tab" data-tab="questions">質問管理</div>
+            <div class="tab" data-tab="report">レポート</div>
+        </div>
+        <div id="respondents-tab" class="tab-content">
+            <div class="link-section">
+                <h4>🔗 回答者専用リンク</h4>
+                <p style="margin-bottom: 10px; color: #666; font-size: 13px;">このリンクをクライアントに送付してください。従業員がこのリンクをクリックするとサーベイに回答できます。</p>
+                <div class="link-input">
+                    <input type="text" id="surveyLink" readonly>
+                    <button onclick="copySurveyLink()">コピー</button>
+                    <button onclick="previewSurvey()">プレビュー</button>
+                </div>
+                <div class="qr-container"><div id="qrcode"></div></div>
+            </div>
+            <h3 style="color: #1f4788; margin-top: 30px; margin-bottom: 15px;">新規企業追加</h3>
+            <div class="inline-add">
+                <input type="text" id="newCompanyName" placeholder="企業名">
+                <button onclick="addNewCompanyInline()">追加</button>
+            </div>
+            <h3 style="color: #1f4788; margin-top: 30px; margin-bottom: 15px;">回答者一覧</h3>
+            <table><thead><tr><th>回答者名</th><th>部署</th><th>役職</th><th>入社日</th><th>回答状況</th></tr></thead><tbody id="respondentsList"></tbody></table>
+        </div>
+        <div id="questions-tab" class="tab-content hidden">
+            <h3 style="color: #1f4788; margin-bottom: 15px;">サーベイ質問一覧</h3>
+            <div id="questionsList"></div>
+        </div>
+        <div id="report-tab" class="tab-content hidden">
+            <h3 style="color: #1f4788; margin-bottom: 15px;">レポート</h3>
+            <div class="report-container">
+                <div class="slides-controls">
+                    <button id="prevSlide" class="btn btn-primary" onclick="previousSlide()">← 前へ</button>
+                    <span id="slideInfo" style="padding: 10px 20px; background: #f5f5f5; border-radius: 4px;">1 / 5</span>
+                    <button id="nextSlide" class="btn btn-primary" onclick="nextSlide()">次へ →</button>
+                    <button id="downloadPdf" class="btn btn-primary" onclick="downloadReportPDF()">📥 PDF</button>
+                    <button id="downloadSlides" class="btn btn-primary" onclick="downloadReportSlides()">📥 Slides</button>
+                </div>
+                <div class="slides-viewer" id="slidesViewer">
+                    <div id="slideContent" style="width: 90%; text-align: left;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    if (params.get('mode') === 'survey') {
+        enterSurveyMode(params.get('company'));
+    } else {
+        initializeAdmin();
+    }
+});
+
+function initializeAdmin() {
+    isAdminMode = true;
+    loadDomain();
+    initializeCompanies();
+    loadRespondents();
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    document.getElementById('saveDomainBtn').addEventListener('click', saveDomainSetting);
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            switchTab(tabName);
+        });
+    });
+    document.getElementById('startSurveyBtn').addEventListener('click', startSurvey);
+    document.getElementById('surveyForm').addEventListener('submit', submitSurvey);
+}
+
+function loadDomain() {
+    const stored = localStorage.getItem('domainSetting');
+    if (stored) {
+        baseDomain = stored;
+    }
+    document.getElementById('domainInput').value = baseDomain;
+    generateSurveyLink();
+}
+
+function saveDomainSetting() {
+    const domain = document.getElementById('domainInput').value.trim();
+    if (!domain) {
+        alert('ドメイン名を入力してください');
+        return;
+    }
+    baseDomain = domain;
+    localStorage.setItem('domainSetting', domain);
+    generateSurveyLink();
+}
+
+function generateSurveyLink() {
+    const link = `${baseDomain}/?mode=survey&company=${currentCompanyId}`;
+    document.getElementById('surveyLink').value = link;
+    document.getElementById('qrcode').innerHTML = '';
+    new QRCode(document.getElementById('qrcode'), {
+        text: link,
+        width: 200,
+        height: 200
+    });
+}
+
+function copySurveyLink() {
+    const link = document.getElementById('surveyLink').value;
+    navigator.clipboard.writeText(link).then(() => {
+        alert('リンクをコピーしました');
+    });
+}
+
+function previewSurvey() {
+    const link = document.getElementById('surveyLink').value;
+    window.open(link, '_blank');
+}
+
+function initializeCompanies() {
+    const defaultCompanies = [
+        { id: 'sample-corp', name: 'サンプル株式会社' }
+    ];
+    companies = JSON.parse(localStorage.getItem('companies')) || defaultCompanies;
+    localStorage.setItem('companies', JSON.stringify(companies));
+    renderCompanyList();
+    selectCompany('sample-corp');
+}
+
+function renderCompanyList() {
+    const listHTML = companies.map(company => `
+        <div class="sidebar-item ${company.id === currentCompanyId ? 'active' : ''}" onclick="selectCompany('${company.id}')">
+            ${company.name}
+        </div>
+    `).join('');
+    document.getElementById('companyList').innerHTML = listHTML;
+}
+
+function selectCompany(companyId) {
+    currentCompanyId = companyId;
+    const company = companies.find(c => c.id === companyId);
+    if (company) {
+        document.getElementById('companyName').textContent = company.name;
+    }
+    renderCompanyList();
+    generateSurveyLink();
+    loadRespondents();
+}
+
+function addNewCompanyInline() {
+    const name = document.getElementById('newCompanyName').value.trim();
+    if (!name) {
+        alert('企業名を入力してください');
+        return;
+    }
+    const id = name.toLowerCase().replace(/\s/g, '-');
+    companies.push({ id, name });
+    localStorage.setItem('companies', JSON.stringify(companies));
+    document.getElementById('newCompanyName').value = '';
+    initializeCompanies();
+}
+
+function loadRespondents() {
+    const storedRespondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+    const tbody = document.getElementById('respondentsList');
+    tbody.innerHTML = storedRespondents.map(r => `
+        <tr>
+            <td>${r.name}</td>
+            <td>${r.department}</td>
+            <td>${r.position}</td>
+            <td>${r.joinDate}</td>
+            <td style="color: #28a745;">回答済み</td>
+        </tr>
+    `).join('');
+    document.getElementById('responseCount').textContent = storedRespondents.length;
+}
+
+// サンプルデータ生成
+function addSampleData() {
+    const sampleRespondents = [
+        { name: '田中太郎', department: '営業部', position: '営業課長', joinDate: '2020-01-15', answers: [{ questionId: 1, text: 'クラウドベースのサーベイプラットフォーム', rating: '5' }, { questionId: 2, text: '使いやすいインターフェースと豊富な機能', rating: '4' }, { questionId: 3, text: '社内で積極的に活用されている', rating: '5' }, { questionId: 4, text: '顧客満足度が向上した事例がある', rating: '4' }, { questionId: 5, text: '初期導入コストと学習時間が必要', rating: '3' }] },
+        { name: '鈴木花子', department: 'マーケティング部', position: '部長', joinDate: '2019-03-20', answers: [{ questionId: 1, text: 'リアルタイムデータ収集ツール', rating: '4' }, { questionId: 2, text: '高い拡張性とカスタマイズ性', rating: '5' }, { questionId: 3, text: '定期的に社内で共有されている', rating: '4' }, { questionId: 4, text: 'マーケティング戦略の改善に役立った', rating: '5' }, { questionId: 5, text: 'レポート機能の改善が必要', rating: '2' }] },
+        { name: '佐藤次郎', department: '企画部', position: '主任', joinDate: '2021-07-10', answers: [{ questionId: 1, text: '組織パフォーマンス測定システム', rating: '3' }, { questionId: 2, text: 'データドリブンな意思決定を実現', rating: '4' }, { questionId: 3, text: 'チーム内での認識がばらつきがある', rating: '3' }, { questionId: 4, text: '部門横断的な協業が実現した', rating: '4' }, { questionId: 5, text: 'UI/UXの改善余地がある', rating: '2' }] }
+    ];
+    localStorage.setItem(`respondents_${currentCompanyId}`, JSON.stringify(sampleRespondents));
+    loadRespondents();
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabName + '-tab').classList.remove('hidden');
+    event.target.classList.add('active');
+    if (tabName === 'questions') {
+        displayQuestions();
+    }
+    if (tabName === 'report') {
+        displayReport();
+    }
+}
+
+function displayQuestions() {
+    const html = surveyQuestions.map((q, idx) => `
+        <div class="question-block">
+            <div class="question-number">Q${q.id}. ${q.title}</div>
+            <div class="question-sub">1. ${q.textQuestion}</div>
+            <div class="question-sub">2. 5段階：${q.ratingOptions.join(' ')}</div>
+            <button class="btn btn-primary" onclick="editQuestion(${idx})" style="margin-top: 10px;">編集</button>
+        </div>
+    `).join('');
+    document.getElementById('questionsList').innerHTML = html;
+}
+
+function editQuestion(idx) {
+    const q = surveyQuestions[idx];
+    const newTitle = prompt('質問を編集してください:', q.title);
+    if (newTitle && newTitle !== q.title) {
+        surveyQuestions[idx].title = newTitle;
+        localStorage.setItem('surveyQuestions', JSON.stringify(surveyQuestions));
+        displayQuestions();
+    }
+}
+
+function displayReport() {
+    const respondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+
+    if (respondents.length === 0) {
+        document.getElementById('slideContent').innerHTML = '<p style="color: #999;">回答データがありません</p>';
+        return;
+    }
+
+    const slides = generateReportSlides(respondents);
+    currentSlide = 1;
+    renderSlide(slides[currentSlide - 1]);
+}
+
+function generateReportSlides(respondents) {
+    const slides = [];
+
+    // スライド1：タイトル
+    slides.push(`
+        <div style="text-align: center; padding: 40px;">
+            <h1 style="color: #1f4788; font-size: 32px; margin-bottom: 20px;">組織サーベイ結果レポート</h1>
+            <p style="color: #666; font-size: 18px;">${document.getElementById('companyName').textContent}</p>
+            <p style="color: #999; margin-top: 40px;">回答者数: ${respondents.length}名</p>
+        </div>
+    `);
+
+    // スライド2-6：質問ごとの結果
+    surveyQuestions.forEach((q, idx) => {
+        let ratingCounts = [0, 0, 0, 0, 0];
+        respondents.forEach(r => {
+            const answer = r.answers.find(a => a.questionId === q.id);
+            if (answer) {
+                ratingCounts[parseInt(answer.rating) - 1]++;
+            }
+        });
+
+        slides.push(`
+            <div style="padding: 20px;">
+                <h2 style="color: #1f4788; margin-bottom: 20px;">Q${q.id}. ${q.title}</h2>
+                <div style="margin-top: 20px;">
+                    ${q.ratingOptions.map((opt, i) => `
+                        <div style="margin-bottom: 10px;">
+                            <span style="display: inline-block; width: 150px;">${opt}</span>
+                            <div style="display: inline-block; width: 300px; background: #ddd; height: 30px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: #1f4788; height: 100%; width: ${(ratingCounts[i] / respondents.length * 100)}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                    ${ratingCounts[i]}名
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `);
+    });
+
+    return slides;
+}
+
+function renderSlide(content) {
+    document.getElementById('slideContent').innerHTML = content;
+    document.getElementById('slideInfo').textContent = `${currentSlide} / 6`;
+}
+
+function nextSlide() {
+    const respondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+    if (respondents.length === 0) return;
+    const slides = generateReportSlides(respondents);
+    if (currentSlide < slides.length) {
+        currentSlide++;
+        renderSlide(slides[currentSlide - 1]);
+    }
+}
+
+function previousSlide() {
+    const respondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+    if (respondents.length === 0) return;
+    const slides = generateReportSlides(respondents);
+    if (currentSlide > 1) {
+        currentSlide--;
+        renderSlide(slides[currentSlide - 1]);
+    }
+}
+
+function downloadReportPDF() {
+    const respondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+    if (respondents.length === 0) {
+        alert('レポートデータがありません');
+        return;
+    }
+
+    const slides = generateReportSlides(respondents);
+    const element = document.createElement('div');
+    slides.forEach((slide, idx) => {
+        const slideDiv = document.createElement('div');
+        slideDiv.innerHTML = slide;
+        slideDiv.style.pageBreakAfter = 'always';
+        slideDiv.style.padding = '20px';
+        element.appendChild(slideDiv);
+    });
+
+    const opt = {
+        margin: 10,
+        filename: `${document.getElementById('companyName').textContent}_report.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+    };
+    html2pdf().set(opt).from(element).save();
+}
+
+function downloadReportSlides() {
+    alert('Googleスライドダウンロード機能は準備中です。\nお手数ですが、手動でGoogleスライドにエクスポートしてください。');
+}
+
+function enterSurveyMode(companyId) {
+    isAdminMode = false;
+    currentCompanyId = companyId || 'sample-corp';
+    const company = companies.find(c => c.id === currentCompanyId) || { name: 'サンプル株式会社' };
+    document.getElementById('surveyMode').classList.remove('hidden');
+    document.querySelector('.admin-container').classList.add('hidden');
+    document.getElementById('surveyCompany').textContent = company.name;
+}
+
+function renderSurveyQuestions() {
+    const section = document.getElementById('questionsSection');
+    const html = surveyQuestions.map((q, idx) => `
+        <div class="question-block" style="display: ${idx === currentQuestionIndex ? 'block' : 'none'};" id="question-${idx}">
+            <div class="question-number">Q${q.id}. ${q.title}</div>
+            <div class="form-group">
+                <label style="color: #666; font-weight: normal; font-size: 13px;">${q.textQuestion}</label>
+                <textarea id="text-answer-${idx}" placeholder="${q.textPlaceholder}" maxlength="${q.textMaxLength}" required></textarea>
+            </div>
+            <div class="form-group">
+                <label style="color: #666; font-weight: normal; font-size: 13px;">${q.ratingQuestion}</label>
+                <div class="rating-group">
+                    ${q.ratingOptions.map((opt, i) => `
+                        <label class="rating-option">
+                            <input type="radio" name="rating-${idx}" value="${i+1}" required>
+                            <span style="font-size: 12px;">${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                ${idx > 0 ? `<button type="button" class="btn btn-secondary" onclick="prevQuestion()">戻る</button>` : ''}
+                <button type="button" class="btn btn-primary" onclick="nextQuestion()" style="flex: 1;">${idx === surveyQuestions.length - 1 ? '完了' : '次へ'}</button>
+            </div>
+        </div>
+    `).join('');
+    section.innerHTML = html;
+    section.classList.remove('hidden');
+    document.getElementById('personalInfoSection').classList.add('hidden');
+    document.getElementById('submitBtn').style.display = 'none';
+}
+
+function startSurvey() {
+    const name = document.getElementById('respondentName').value.trim();
+    const department = document.getElementById('department').value.trim();
+    const position = document.getElementById('position').value.trim();
+    const joinDate = document.getElementById('joinDate').value;
+
+    if (!name || !department || !position || !joinDate) {
+        alert('全ての項目を入力してください');
+        return;
+    }
+
+    currentQuestionIndex = 0;
+    renderSurveyQuestions();
+    updateProgress();
+}
+
+function nextQuestion() {
+    if (currentQuestionIndex < surveyQuestions.length - 1) {
+        currentQuestionIndex++;
+        renderSurveyQuestions();
+        updateProgress();
+    } else {
+        submitSurvey();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderSurveyQuestions();
+        updateProgress();
+    }
+}
+
+function updateProgress() {
+    const total = surveyQuestions.length;
+    const percent = ((currentQuestionIndex + 1) / total) * 100;
+    document.getElementById('progressQuestion').textContent = `Q${currentQuestionIndex + 1} / ${total}`;
+    document.getElementById('progressBar').style.width = percent + '%';
+}
+
+function submitSurvey() {
+    const responses = {
+        name: document.getElementById('respondentName').value,
+        department: document.getElementById('department').value,
+        position: document.getElementById('position').value,
+        joinDate: document.getElementById('joinDate').value,
+        answers: []
+    };
+
+    surveyQuestions.forEach((q, idx) => {
+        responses.answers.push({
+            questionId: q.id,
+            text: document.getElementById(`text-answer-${idx}`).value,
+            rating: document.querySelector(`input[name="rating-${idx}"]:checked`).value
+        });
+    });
+
+    const storedRespondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+    storedRespondents.push(responses);
+    localStorage.setItem(`respondents_${currentCompanyId}`, JSON.stringify(storedRespondents));
+
+    document.getElementById('surveyForm').innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+            <h2 style="color: #28a745; margin-bottom: 20px;">✓ ご回答ありがとうございました</h2>
+            <p style="color: #666; font-size: 16px;">あなたのご意見は大切に保管されました。</p>
+        </div>
+    `;
+}
+
+// 初期化時にサンプルデータを追加
+setTimeout(addSampleData, 500);   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>* {margin: 0; padding: 0; box-sizing: border-box;} body {font-family: 'Arial', 'Segoe UI', sans-serif; background-color: #f5f5f5; color: #333;} .admin-container {display: flex; height: 100vh;} .sidebar {width: 280px; background-color: #1f4788; color: white; padding: 20px; overflow-y: auto; box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);} .sidebar h2 {font-size: 18px; margin-bottom: 30px; display: flex; align-items: center; gap: 8px;} .sidebar-section {margin-bottom: 25px;} .sidebar-section-title {font-size: 12px; font-weight: bold; color: #aaa; margin-bottom: 12px; text-transform: uppercase;} .sidebar-item {padding: 10px 15px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s;} .sidebar-item:hover {background-color: rgba(255, 255, 255, 0.1);} .sidebar-item.active {background-color: #0056b3;} .sidebar-item.add-btn {background-color: #28a745; text-align: center; font-weight: bold;} .sidebar-item.add-btn:hover {background-color: #218838;} .main-content {flex: 1; overflow-y: auto; padding: 40px; background-color: #fff;} .company-header {margin-bottom: 40px;} .company-header h1 {font-size: 32px; color: #1f4788; margin-bottom: 5px;} .company-header p {color: #666; font-size: 14px;} .dashboard-title {font-size: 28px; color: #1f4788; margin-bottom: 10px;} .response-count {font-size: 14px; color: #999; margin-bottom: 30px;} .tabs {display: flex; border-bottom: 2px solid #ddd; margin-bottom: 30px;} .tab {padding: 12px 20px; cursor: pointer; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s;} .tab.active {color: #1f4788; border-bottom-color: #1f4788;} .tab:hover {color: #1f4788;} .form-group {margin-bottom: 20px;} .form-group label {display: block; font-weight: bold; margin-bottom: 8px; color: #333; font-size: 14px;} .form-group input[type="text"], .form-group input[type="date"], .form-group select, .form-group textarea {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;} .form-group textarea {resize: vertical; min-height: 80px;} .form-group input:focus, .form-group select:focus, .form-group textarea:focus {outline: none; border-color: #1f4788; box-shadow: 0 0 5px rgba(31, 71, 136, 0.3);} .rating-group {display: flex; gap: 10px; margin-top: 8px;} .rating-option {flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: all 0.3s; font-size: 12px;} .rating-option:hover {border-color: #1f4788; background-color: #f0f5ff;} .rating-option input {display: none;} .rating-option input:checked + label {color: #1f4788; font-weight: bold;} .btn {padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.3s;} .btn-primary {background-color: #1f4788; color: white;} .btn-primary:hover {background-color: #0056b3;} .btn-secondary {background-color: #6c757d; color: white; margin-left: 10px;} .btn-secondary:hover {background-color: #5a6268;} .question-block {background: white; padding: 20px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #1f4788;} .question-number {font-weight: bold; color: #1f4788; margin-bottom: 10px;} .qr-container {text-align: center; margin-top: 20px;} #qrcode {display: inline-block; border: 1px solid #ddd; padding: 10px; border-radius: 4px;} table {width: 100%; border-collapse: collapse; margin-top: 20px;} table thead {background-color: #1f4788; color: white;} table th, table td {padding: 12px; text-align: left; border-bottom: 1px solid #ddd;} table tr:hover {background-color: #f5f5f5;} .link-section {background: #f0f5ff; padding: 15px; border-radius: 4px; margin-bottom: 20px;} .link-section h4 {color: #1f4788; margin-bottom: 10px;} .link-input {display: flex; gap: 10px; margin-bottom: 10px;} .link-input input {flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;} .link-input button {padding: 10px 15px; background-color: #1f4788; color: white; border: none; border-radius: 4px; cursor: pointer;} .link-input button:hover {background-color: #0056b3;} .hidden {display: none;}</style>
