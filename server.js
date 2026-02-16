@@ -27,7 +27,18 @@ app.get('/api/config', (req, res) => {
     });
 });
 
+// Survey link generation API
+app.get('/api/survey-link/:companyId', (req, res) => {
+      const domain = process.env.DOMAIN || 'https://charm-survey-production.up.railway.app';
+      const companyId = req.params.companyId;
+      res.json({
+              surveyUrl: `${domain}?mode=survey&company=${companyId}`
+      });
+});
+
 // 1. 企業一覧取得
+
+
 app.get('/api/companies', async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM companies ORDER BY created_at DESC');
