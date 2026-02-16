@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CharmSurvey - 組織サーベイ管理システム</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    .admin-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 280px;
+      background-color: #1F4788;
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+      border-bottom: 2px solid #2E75B6;
+      padding-bottom: 15px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 25px;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #CADCFC;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-button {
+      display: block;
+      width: 100%;
+      padding: 10px 15px;
+      margin-bottom: 8px;
+      background-color: #2E75B6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .sidebar-button:hover {
+      background-color: #3F8FCC;
+      transform: translateX(4px);
+    }
+
+    .sidebar-button.active {
+      background-color: #F96167;
+      font-weight: bold;
+    }
+
+    .company-item {
+      padding: 10px 15px;
+      background-color: #2E75B6;
+      color: white;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .company-item:hover {
+      background-color: #3F8FCC;
+      transform: translateX(4px);
+    }
+
+    .company-item.active {
+      background-color: #F96167;
+      font-weight: bold;
+    }
+
+    /* NEW COMPANY FORM */
+    #add-company-form {
+      display: none;
+      background-color: #2E75B6;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+
+    #add-company-form.visible {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .form-group button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 5px;
+      background-color: #10B981;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .form-group button:last-child {
+      background-color: #ef4444;
+    }
+
+    /* SETTINGS SECTION */
+    .settings-section {
+      background-color: #2E75B6;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+
+    .settings-label {
+      font-size: 12px;
+      color: #CADCFC;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .settings-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .settings-status {
+      font-size: 11px;
+      color: #10B981;
+      padding: 8px;
+      background-color: rgba(16, 185, 129, 0.1);
+      border-radius: 4px;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background-color: white;
+      padding: 20px 30px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1F4788;
+    }
+
+    .header-info {
+      font-size: 13px;
+      color: #64748B;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px;
+      background-color: #f9f9f9;
+    }
+
+    .dashboard {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .dashboard-title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1F4788;
+      margin-bottom: 10px;
+    }
+
+    .dashboard-subtitle {
+      color: #64748B;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    /* ===== TABS ===== */
+    .tab-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .tab-buttons {
+      display: flex;
+      border-bottom: 2px solid #f0f0f0;
+      background-color: #f9f9f9;
+    }
+
+    .tab-button {
+      padding: 15px 25px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      color: #64748B;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-button:hover {
+      color: #2E75B6;
+    }
+
+    .tab-button.active {
+      color: #1F4788;
+      border-bottom-color: #2E75B6;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 30px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ===== RESPONDER LINK SECTION ===== */
+    .responder-link-section {
+      background-color: #f0f7ff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 3px solid #2E75B6;
+    }
+
+    .responder-link-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2E75B6;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .responder-link-description {
+      font-size: 13px;
+      color: #64748B;
+      margin-bottom: 15px;
+    }
+
+    .link-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .link-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: monospace;
+      background-color: white;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      background-color: #2E75B6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background-color: #1F4788;
+    }
+
+    .btn.copied {
+      background-color: #10B981;
+    }
+
+    .btn-preview {
+      padding: 10px 15px;
+      background-color: #F96167;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-preview:hover {
+      background-color: #E85560;
+    }
+
+    /* QR CODE */
+    #qr-code {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: white;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* ===== TABLE ===== */
+    .responder-table {
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    thead {
+      background-color: #1F4788;
+      color: white;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+      border: none;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .responder-name-cell {
+      cursor: pointer;
+      color: #2E75B6;
+      font-weight: bold;
+    }
+
+    .responder-name-cell:hover {
+      text-decoration: underline;
+    }
+
+    td {
+      padding: 15px;
+      font-size: 13px;
+    }
+
+    .responder-details-row {
+      display: none;
+    }
+
+    .responder-details-row.expanded {
+      display: table-row;
+    }
+
+    .responder-details-content {
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .answer-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: white;
+      border-radius: 4px;
+      border-left: 3px solid #2E75B6;
+    }
+
+    .question-label {
+      font-size: 12px;
+      font-weight: bold;
+      color: #2E75B6;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .question-text {
+      font-size: 13px;
+      font-weight: bold;
+      color: #1F4788;
+      margin-bottom: 10px;
+    }
+
+    .answer-text {
+      background-color: #f0f7ff;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #333;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+
+    .answer-rating {
+      display: inline-block;
+      background-color: #f0f7ff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #2E75B6;
+      font-weight: bold;
+    }
+
+    /* ===== QUESTIONS SECTION ===== */
+    .questions-table {
+      margin-top: 20px;
+    }
+
+    .edit-button {
+      padding: 6px 12px;
+      background-color: #2E75B6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .edit-button:hover {
+      background-color: #1F4788;
+    }
+
+    .edit-mode {
+      background-color: #fffacd !important;
+    }
+
+    .question-text-input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #2E75B6;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      resize: vertical;
+      min-height: 60px;
+      margin-bottom: 15px;
+    }
+
+    .options-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+
+    .options-table th {
+      background-color: #f0f0f0;
+      padding: 10px;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    .options-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .options-table input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .edit-controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-save {
+      padding: 8px 16px;
+      background-color: #10B981;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .btn-save:hover {
+      background-color: #059669;
+    }
+
+    .btn-cancel {
+      padding: 8px 16px;
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .btn-cancel:hover {
+      background-color: #dc2626;
+    }
+
+    /* ===== REPORT SECTION ===== */
+    .report-editor {
+      background-color: #f0f7ff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 3px solid #2E75B6;
+    }
+
+    .report-editor-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2E75B6;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .report-textarea {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .report-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn-generate {
+      padding: 12px 24px;
+      background-color: #2E75B6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .btn-generate:hover {
+      background-color: #1F4788;
+    }
+
+    /* SLIDE CONTAINER */
+    .slide-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .slide-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 62.5%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+    }
+
+    .slide-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px;
+      background: linear-gradient(135deg, #1F4788, #2E75B6);
+      color: white;
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .slide-content.active {
+      display: block;
+    }
+
+    .slide-header {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 10px;
+    }
+
+    .slide-body {
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .slide-body table {
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.1);
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+
+    .slide-body th, .slide-body td {
+      padding: 10px;
+      text-align: left;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .slide-body th {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .slide-footer {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+    }
+
+    .slide-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+
+    .slide-btn {
+      padding: 10px 20px;
+      background-color: #2E75B6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .slide-btn:hover {
+      background-color: #1F4788;
+    }
+
+    .slide-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      text-align: center;
+      color: #64748B;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    /* ===== SURVEY SCREEN ===== */
+    .survey-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+    }
+
+    .survey-header {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .survey-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1F4788;
+      margin-bottom: 10px;
+    }
+
+    .survey-progress {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background-color: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: #2E75B6;
+      transition: width 0.3s;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .form-label {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1F4788;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .form-sublabel {
+      font-size: 13px;
+      color: #64748B;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+      margin-bottom: 10px;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: #2E75B6;
+      box-shadow: 0 0 0 2px rgba(46, 117, 182, 0.1);
+    }
+
+    .rating-group {
+      margin: 15px 0;
+    }
+
+    .rating-label {
+      font-size: 13px;
+      color: #64748B;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .rating-options {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .rating-option {
+      flex: 1;
+      min-width: 80px;
+      padding: 10px;
+      text-align: center;
+      border: 2px solid #d0d0d0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .rating-option:hover {
+      border-color: #2E75B6;
+      background-color: #f0f7ff;
+    }
+
+    .rating-option.selected {
+      border-color: #2E75B6;
+      background-color: #2E75B6;
+      color: white;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+      justify-content: space-between;
+    }
+
+    .btn-primary {
+      background-color: #2E75B6;
+      color: white;
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-primary:hover {
+      background-color: #1F4788;
+    }
+
+    .btn-secondary {
+      background-color: #f0f0f0;
+      color: #1F4788;
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e0e0e0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .modal.visible {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1F4788;
+      margin-bottom: 20px;
+    }
+
+    .modal-body {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .modal-close-btn {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .modal-close-btn:hover {
+      background-color: #dc2626;
+    }
+
+    .modal-copy-btn {
+      background-color: #2E75B6;
+      color: white;
+    }
+
+    .modal-copy-btn:hover {
+      background-color: #1F4788;
+    }
+
+    .chart-container-slide {
+      width: 100%;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ADMIN MODE -->
+  <div id="admin-mode" class="admin-container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="logo">🎯 CharmSurvey</div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">⚙️ 設定</div>
+        <div class="settings-section">
+          <label class="settings-label">本番用ドメイン名</label>
+          <input type="text" id="domain-input" class="settings-input" placeholder="https://example.com" />
+          <button class="sidebar-button" onclick="saveDomainSetting()" style="background-color: #10B981; margin-bottom: 0; padding: 8px 12px; font-size: 12px;">保存</button>
+          <div id="domain-status" class="settings-status" style="display: none; margin-top: 8px;"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">企業管理</div>
+        <button class="sidebar-button" onclick="toggleAddCompanyForm()" style="background-color: #10B981;">+ 新規企業追加</button>
+
+        <div id="add-company-form">
+          <div class="form-group">
+            <input type="text" id="company-name-input" placeholder="企業名を入力" />
+          </div>
+          <div class="form-group">
+            <button onclick="confirmAddCompany()">追加</button>
+            <button onclick="cancelAddCompany()">キャンセル</button>
+          </div>
+        </div>
+
+        <div id="company-list" style="margin-top: 15px;">
+          <!-- 企業が動的に追加されます -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <div class="header">
+        <div>
+          <div class="header-title" id="current-company-name">会社を選択してください</div>
+          <div class="header-info">久保寺隼 | j.kubodera@blue-sapiens.com</div>
+        </div>
+      </div>
+
+      <div class="content-area">
+        <div class="dashboard" id="dashboard">
+          <h2 class="dashboard-title">ダッシュボード</h2>
+          <p class="dashboard-subtitle" id="dashboard-subtitle">企業を選択してください</p>
+
+          <!-- TAB CONTAINER -->
+          <div class="tab-container">
+            <div class="tab-buttons">
+              <button class="tab-button active" onclick="switchTab('responders-tab')">回答者管理</button>
+              <button class="tab-button" onclick="switchTab('questions-tab')">質問管理</button>
+              <button class="tab-button" onclick="switchTab('report-tab')">レポート</button>
+            </div>
+
+            <!-- TAB 1: RESPONDERS -->
+            <div id="responders-tab" class="tab-content active">
+              <div class="responder-link-section">
+                <div class="responder-link-title">📋 回答者用リンク</div>
+                <div class="responder-link-description">
+                  このリンクをクライアントに送付してください。従業員がこのリンクをクリックするとサーベイに回答できます。
+                </div>
+                <div class="link-box">
+                  <input type="text" class="link-input" id="survey-link" value="" readonly>
+                  <button class="btn" onclick="copySurveyLink()">コピー</button>
+                  <button class="btn-preview" onclick="openSurveyPreview()">📋 プレビュー</button>
+                </div>
+                <div id="qr-code"></div>
+              </div>
+
+              <div class="responder-table">
+                <h3 style="color: #1F4788; margin-bottom: 15px;">回答者一覧</h3>
+                <table id="responder-table">
+                  <thead>
+                    <tr>
+                      <th>回答者名</th>
+                      <th>部署</th>
+                      <th>役職</th>
+                      <th>入社日</th>
+                      <th>回答状況</th>
+                    </tr>
+                  </thead>
+                  <tbody id="responder-tbody">
+                    <!-- 回答者が動的に追加されます -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 2: QUESTIONS -->
+            <div id="questions-tab" class="tab-content">
+              <h3 style="color: #1F4788; margin-bottom: 15px;">デフォルト設問（Q1～Q5）</h3>
+              <div class="questions-table">
+                <table id="questions-table">
+                  <thead>
+                    <tr>
+                      <th>設問</th>
+                      <th style="width: 100px;">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="questions-tbody">
+                    <!-- 質問が動的に追加されます -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 3: REPORT -->
+            <div id="report-tab" class="tab-content">
+              <div class="report-editor">
+                <div class="report-editor-title">📝 編集エリア</div>
+                <p style="font-size: 12px; color: #64748B; margin-bottom: 15px;">
+                  後からコメントや解釈を追記したい内容をここに入力してください。
+                </p>
+                <textarea class="report-textarea" id="report-custom-text" placeholder="CEO向けの補足コメント、追加の指摘など..."></textarea>
+
+                <div class="report-buttons">
+                  <button class="btn-generate" onclick="generatePDF()">📥 PDF ダウンロード</button>
+                  <button class="btn-generate" onclick="generateGoogleSlides()">🎯 Google スライド生成</button>
+                  <button class="btn-generate" onclick="showPrompt()">💡 プロンプト表示</button>
+                </div>
+              </div>
+
+              <!-- SLIDE REPORT -->
+              <div class="slide-container">
+                <div class="slide-wrapper">
+                  <div id="slide-1" class="slide-content active">
+                    <div class="slide-header">📋 エグゼクティブサマリー</div>
+                    <div class="slide-body" id="slide-1-body"></div>
+                  </div>
+                  <div id="slide-2" class="slide-content">
+                    <div class="slide-header">② 質問別詳細分析</div>
+                    <div class="slide-body" id="slide-2-body"></div>
+                  </div>
+                  <div id="slide-3" class="slide-content">
+                    <div class="slide-header">③ 部署別比較分析</div>
+                    <div class="slide-body" id="slide-3-body"></div>
+                  </div>
+                  <div id="slide-4" class="slide-content">
+                    <div class="slide-header">④ AI分析コメント</div>
+                    <div class="slide-body" id="slide-4-body"></div>
+                  </div>
+                  <div id="slide-5" class="slide-content">
+                    <div class="slide-header">⑤ データビジュアライゼーション</div>
+                    <div class="slide-body" id="slide-5-body"></div>
+                  </div>
+                  <div id="slide-6" class="slide-content">
+                    <div class="slide-header">✅ 推奨アクション</div>
+                    <div class="slide-body" id="slide-6-body"></div>
+                  </div>
+                  <div class="slide-footer">
+                    <span>CharmSurvey</span>
+                    <span id="slide-number">1 / 6</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="slide-controls">
+                <button class="slide-btn" onclick="previousSlide()">← 前へ</button>
+                <button class="slide-btn" onclick="nextSlide()">次へ →</button>
+              </div>
+              <div class="slide-counter" id="slide-counter">スライド 1 / 6</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESPONDENT MODE (SURVEY) -->
+  <div id="survey-mode" class="survey-container" style="display: none; max-width: 600px; margin: 50px auto; padding: 40px; background-color: white; border-radius: 8px;">
+    <div class="survey-header">
+      <div class="survey-title">組織サーベイ</div>
+      <p style="color: #64748B; margin-bottom: 20px;" id="survey-company-name">会社名</p>
+      <div class="survey-progress">
+        <span id="progress-text">Q1 / Q5</span>
+        <span>約3分で完了</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-bar" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <form id="survey-form" onsubmit="handleSurveySubmit(event)">
+      <!-- 回答者情報 -->
+      <div id="responder-info-section" class="form-section">
+        <label class="form-label">まず、あなたの情報を教えてください</label>
+
+        <label class="form-sublabel">名前</label>
+        <input type="text" class="form-input" id="survey-name" required>
+
+        <label class="form-sublabel">入社年月日</label>
+        <input type="date" class="form-input" id="survey-joined-date" required>
+
+        <label class="form-sublabel">部署</label>
+        <select class="form-select" id="survey-department" required>
+          <option value="">選択してください</option>
+          <option value="営業">営業</option>
+          <option value="マーケティング">マーケティング</option>
+          <option value="CS">CS</option>
+          <option value="エンジニア">エンジニア</option>
+          <option value="経営層">経営層</option>
+        </select>
+
+        <label class="form-sublabel">役職</label>
+        <input type="text" class="form-input" id="survey-position" placeholder="例: 営業部長">
+
+        <div class="button-group">
+          <button type="button" class="btn-primary" onclick="startSurvey()">回答を開始する</button>
+        </div>
+      </div>
+
+      <!-- Q1～Q5 -->
+      <div id="q1-section" class="form-section hidden">
+        <label class="form-label">Q1: 当社のサービス／事業を一言で表すと？</label>
+        <label class="form-sublabel">回答例：「営業活動を最適化するSaaS」</label>
+        <textarea class="form-textarea" id="q1-text" placeholder="20～30文字で"></textarea>
+        <div class="rating-group">
+          <label class="rating-label">上記の定義がどの程度、あなたの認識と合致していますか？</label>
+          <div class="rating-options" id="q1-rating">
+            <button type="button" class="rating-option" data-value="1">① 全く言えない</button>
+            <button type="button" class="rating-option" data-value="2">② あまり言えない</button>
+            <button type="button" class="rating-option" data-value="3">③ ある程度言える</button>
+            <button type="button" class="rating-option" data-value="4">④ かなり言える</button>
+            <button type="button" class="rating-option" data-value="5">⑤ 明確に言える</button>
+          </div>
+        </div>
+        <div class="button-group">
+          <button type="button" class="btn-secondary" onclick="previousQuestion()">戻る</button>
+          <button type="button" class="btn-primary" onclick="nextQuestion()">次へ</button>
+        </div>
+      </div>
+
+      <div id="q2-section" class="form-section hidden">
+        <label class="form-label">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</label>
+        <textarea class="form-textarea" id="q2-text" placeholder="300文字以内で"></textarea>
+        <div class="rating-group">
+          <label class="rating-label">説明の自信度</label>
+          <div class="rating-options" id="q2-rating">
+            <button type="button" class="rating-option" data-value="1">① 全く説明できない</button>
+            <button type="button" class="rating-option" data-value="2">② あまり説明できない</button>
+            <button type="button" class="rating-option" data-value="3">③ ある程度説明できる</button>
+            <button type="button" class="rating-option" data-value="4">④ かなり説明できる</button>
+            <button type="button" class="rating-option" data-value="5">⑤ 強く自信を持って説明できる</button>
+          </div>
+        </div>
+        <div class="button-group">
+          <button type="button" class="btn-secondary" onclick="previousQuestion()">戻る</button>
+          <button type="button" class="btn-primary" onclick="nextQuestion()">次へ</button>
+        </div>
+      </div>
+
+      <div id="q3-section" class="form-section hidden">
+        <label class="form-label">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</label>
+        <label class="form-sublabel">理由</label>
+        <textarea class="form-textarea" id="q3-text" placeholder="300文字以内で"></textarea>
+        <div class="rating-group">
+          <label class="rating-label">言語統一度</label>
+          <div class="rating-options" id="q3-rating">
+            <button type="button" class="rating-option" data-value="1">① 全く揃っていない</button>
+            <button type="button" class="rating-option" data-value="2">② あまり揃っていない</button>
+            <button type="button" class="rating-option" data-value="3">③ ある程度揃っている</button>
+            <button type="button" class="rating-option" data-value="4">④ ほぼ同じ言葉で語られている</button>
+            <button type="button" class="rating-option" data-value="5">⑤ 非常に揃っている</button>
+          </div>
+        </div>
+        <div class="button-group">
+          <button type="button" class="btn-secondary" onclick="previousQuestion()">戻る</button>
+          <button type="button" class="btn-primary" onclick="nextQuestion()">次へ</button>
+        </div>
+      </div>
+
+      <div id="q4-section" class="form-section hidden">
+        <label class="form-label">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</label>
+        <textarea class="form-textarea" id="q4-text" placeholder="具体例を300文字以内で"></textarea>
+        <div class="rating-group">
+          <label class="rating-label">事例想起度</label>
+          <div class="rating-options" id="q4-rating">
+            <button type="button" class="rating-option" data-value="1">① 全く思い浮かばない</button>
+            <button type="button" class="rating-option" data-value="2">② あまり思い浮かばない</button>
+            <button type="button" class="rating-option" data-value="3">③ ある程度思い浮かぶ</button>
+            <button type="button" class="rating-option" data-value="4">④ 複数思い浮かぶ</button>
+            <button type="button" class="rating-option" data-value="5">⑤ 具体事例をもとに明確に思い浮かぶ</button>
+          </div>
+        </div>
+        <div class="button-group">
+          <button type="button" class="btn-secondary" onclick="previousQuestion()">戻る</button>
+          <button type="button" class="btn-primary" onclick="nextQuestion()">次へ</button>
+        </div>
+      </div>
+
+      <div id="q5-section" class="form-section hidden">
+        <label class="form-label">Q5: 当社サービスの『向いていないケース』や『弱み・課題』を説明できますか？</label>
+        <textarea class="form-textarea" id="q5-text" placeholder="具体的な制約を300文字以内で"></textarea>
+        <div class="rating-group">
+          <label class="rating-label">制約明確度</label>
+          <div class="rating-options" id="q5-rating">
+            <button type="button" class="rating-option" data-value="1">① 全く説明できない</button>
+            <button type="button" class="rating-option" data-value="2">② あまり説明できない</button>
+            <button type="button" class="rating-option" data-value="3">③ 少し説明できる</button>
+            <button type="button" class="rating-option" data-value="4">④ ある程度説明できる</button>
+            <button type="button" class="rating-option" data-value="5">⑤ 明確に説明できる</button>
+          </div>
+        </div>
+        <div class="button-group">
+          <button type="button" class="btn-secondary" onclick="previousQuestion()">戻る</button>
+          <button type="submit" class="btn-primary">回答を送信</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- PROMPT MODAL -->
+  <div id="prompt-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-title">📋 AI分析用プロンプト</div>
+      <div class="modal-body" id="prompt-content"></div>
+      <div class="modal-buttons">
+        <button class="modal-copy-btn" onclick="copyPromptToClipboard()">📋 コピー</button>
+        <button class="modal-close-btn" onclick="closePromptModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== DATA MANAGEMENT =====
+    let currentCompanyId = null;
+    let currentQuestion = 0;
+    let currentSlide = 1;
+    let qrCodeInstance = null;
+    let baseDomain = ''; // ユーザーが設定するドメイン名
+
+    let companies = {
+      'sample-corp': {
+        name: 'サンプル株式会社',
+        surveyLink: '?mode=survey&company=sample-corp',
+        responders: [
+          { id: 1, name: '山田太郎', joined: '2018-04-01', department: '営業', position: '営業部長', answers: [
+            { q: 1, text: '営業活動を最適化するSaaS', rating: 5 },
+            { q: 2, text: '機能が充実しており、カスタマイズ性に優れている。競合他社と比べて導入実績が豊富で信頼できる。', rating: 4 },
+            { q: 3, text: '営業チーム内では「営業効率化ツール」として統一している。が、経営層では「営業DX」と呼ぶことが多い。', rating: 3 },
+            { q: 4, text: 'A社では導入前は営業活動の可視化ができていなかったが、導入後は売上が20%向上した。', rating: 4 },
+            { q: 5, text: '小規模企業や定型営業には不向き。複雑な営業プロセスに対応しているため、シンプルなニーズには過剰機能。', rating: 4 }
+          ]},
+          { id: 2, name: '鈴木花子', joined: '2019-07-15', department: 'マーケティング', position: 'マーケティングマネージャー', answers: [
+            { q: 1, text: 'B2Bの営業支援プラットフォーム', rating: 4 },
+            { q: 2, text: 'AI搭載で営業プロセスの自動化が可能。業界別のテンプレートが豊富で導入が早い。', rating: 5 },
+            { q: 3, text: 'マーケティングチームでは「リード獲得プラットフォーム」と言うことが多い。営業との表現が異なる。', rating: 2 },
+            { q: 4, text: 'B社はマーケティング施策で獲得したリードの追跡がシステムで自動化され、案件化率が向上した。', rating: 5 },
+            { q: 5, text: 'API統合に技術リソースが必要。マーケティングオートメーションではなく、営業寄り。', rating: 3 }
+          ]},
+          { id: 3, name: '佐藤次郎', joined: '2020-02-10', department: 'エンジニア', position: 'リード', answers: [
+            { q: 1, text: 'CRMと営業分析の統合プラットフォーム', rating: 3 },
+            { q: 2, text: 'クラウドベースで拡張性が高い。APIが充実しており他システムとの連携が容易。', rating: 4 },
+            { q: 3, text: 'エンジニアチーム内では技術的な視点で「API連携プラットフォーム」と呼ぶことが多い。営業とのギャップあり。', rating: 2 },
+            { q: 4, text: 'C社ではシステム間のデータ連携により、営業データの同期遅延がなくなった。', rating: 3 },
+            { q: 5, text: '大規模な技術実装が必要な場合がある。ローコードではない。', rating: 4 }
+          ]},
+          { id: 4, name: '田中花美', joined: '2021-01-20', department: '営業', position: '営業', answers: [
+            { q: 1, text: '顧客営業を支援するツール', rating: 3 },
+            { q: 2, text: 'パイプライン管理が直感的。導入企業の成功事例が豊富。', rating: 4 },
+            { q: 3, text: '営業部内で表現が統一されていない。最近入社した人と経験者で言い方が異なる。', rating: 2 },
+            { q: 4, text: 'D社ではリード追跡の精度が向上し、営業機会の取りこぼしが減った。', rating: 4 },
+            { q: 5, text: 'データ品質に依存しており、ガベージデータが多いと効果が薄い。', rating: 3 }
+          ]},
+          { id: 5, name: '野村慶太', joined: '2021-06-01', department: 'CS', position: 'チームリード', answers: [
+            { q: 1, text: '顧客サクセス支援システム', rating: 3 },
+            { q: 2, text: 'CSチームが顧客のヘルススコア管理に活用できる。更新が頻繁で改善が早い。', rating: 4 },
+            { q: 3, text: 'CS部では独自の用語を使用。全社で共通言語がない。', rating: 1 },
+            { q: 4, text: 'E社ではチャーンリスク顧客を早期に発見できるようになった。', rating: 5 },
+            { q: 5, text: '営業寄りの設計で、CSの業務にはやや無駄な機能がある。', rating: 2 }
+          ]},
+          { id: 6, name: '加藤太郎', joined: '2022-04-10', department: '経営層', position: 'CEO', answers: [
+            { q: 1, text: '営業DXプラットフォーム', rating: 5 },
+            { q: 2, text: 'ROIを明確に示せる。市場競争力が強い。', rating: 5 },
+            { q: 3, text: '経営層では「DXツール」と呼ぶが、営業では「営業ツール」と呼ぶ。経営側と営業現場でのズレがある。', rating: 2 },
+            { q: 4, text: '複数の顧客で売上向上という成果を得ている。', rating: 5 },
+            { q: 5, text: '大企業向けで、スモールビジネスには向かない。', rating: 3 }
+          ]},
+          { id: 7, name: '渡辺美咲', joined: '2022-09-01', department: 'マーケティング', position: 'マーケティング', answers: [
+            { q: 1, text: 'データドリブンな営業プラットフォーム', rating: 4 },
+            { q: 2, text: 'ダッシュボードが見やすく、営業データの可視化が優れている。', rating: 4 },
+            { q: 3, text: '使用するたびに説明する必要があるほど、チーム内での理解が浅い。', rating: 1 },
+            { q: 4, text: 'F社でのマーケティング施策の効果測定がしやすくなった。', rating: 4 },
+            { q: 5, text: '初期設定に時間がかかる。ドキュメントが充実していない。', rating: 2 }
+          ]},
+          { id: 8, name: '鈴木健太', joined: '2023-01-15', department: 'CS', position: 'CS', answers: [
+            { q: 1, text: '営業・サポート統合システム', rating: 3 },
+            { q: 2, text: 'サポート業務の効率化が期待できる。安定している。', rating: 3 },
+            { q: 3, text: 'CS部での理解が不足している。営業向けだと感じている。', rating: 2 },
+            { q: 4, text: 'G社ではサポートチケットの対応時間が短縮された。', rating: 3 },
+            { q: 5, text: 'CS向けの機能が少ない。カスタマイズが必要。', rating: 3 }
+          ]},
+          { id: 9, name: '小松由美', joined: '2023-04-20', department: 'エンジニア', position: 'エンジニア', answers: [
+            { q: 1, text: 'SaaS型営業管理ツール', rating: 2 },
+            { q: 2, text: 'インテグレーションが充実している。', rating: 4 },
+            { q: 3, text: '技術チームでのみ使用しているため、統一言語がない。', rating: 2 },
+            { q: 4, text: 'H社ではシステム連携の負担が軽減された。', rating: 4 },
+            { q: 5, text: 'UI/UXが複雑。初心者には使いにくい。', rating: 2 }
+          ]},
+          { id: 10, name: '吉田太郎', joined: '2023-07-10', department: '営業', position: '営業', answers: [
+            { q: 1, text: 'パイプライン管理ツール', rating: 2 },
+            { q: 2, text: '営業現場での使いやすさが魅力。', rating: 4 },
+            { q: 3, text: 'チーム内で表現が統一されていない。', rating: 2 },
+            { q: 4, text: 'I社では案件予測の精度が向上した。', rating: 4 },
+            { q: 5, text: 'レポート機能が限定的。カスタムレポートが必要。', rating: 2 }
+          ]},
+          { id: 11, name: '山下花子', joined: '2023-10-01', department: 'マーケティング', position: '分析', answers: [
+            { q: 1, text: 'リード管理・営業支援プラットフォーム', rating: 3 },
+            { q: 2, text: 'データ分析機能が充実している。', rating: 4 },
+            { q: 3, text: '分析視点と営業視点で表現が異なる。', rating: 2 },
+            { q: 4, text: 'J社ではリードの質が向上した。', rating: 4 },
+            { q: 5, text: 'リアルタイムデータが保証されない場合がある。', rating: 2 }
+          ]},
+          { id: 12, name: '田中健一', joined: '2023-11-15', department: 'CS', position: 'CS', answers: [
+            { q: 1, text: 'エンタープライズ向けCRM', rating: 2 },
+            { q: 2, text: '大規模企業対応。スケーラビリティが高い。', rating: 4 },
+            { q: 3, text: 'CS部での使用方法が不明確。営業向けツールだと感じている。', rating: 1 },
+            { q: 4, text: 'K社では顧客データの一元化により、サポート効率が向上。', rating: 3 },
+            { q: 5, text: '中小企業には過剰機能。コストが高い。', rating: 2 }
+          ]},
+          { id: 13, name: '佐藤由美', joined: '2024-01-10', department: '経営層', position: 'CFO', answers: [
+            { q: 1, text: '企業向けセールスプラットフォーム', rating: 4 },
+            { q: 2, text: 'TCOが明確で予測可能。経営判断がしやすい。', rating: 4 },
+            { q: 3, text: '経営層では「営業DX」だが、営業では「営業ツール」という言語ズレがある。', rating: 2 },
+            { q: 4, text: '複数事業での展開により、連結売上への貢献がある。', rating: 4 },
+            { q: 5, text: 'ライセンスコストが高い。投資対効果の期間が長い。', rating: 3 }
+          ]}
+        ]
+      }
+    };
+
+    const questions = [
+      { id: 1, text: 'Q1: 当社のサービス／事業を一言で表すと？', options: ['① 全く言えない', '② あまり言えない', '③ ある程度言える', '④ かなり言える', '⑤ 明確に言える'] },
+      { id: 2, text: 'Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？', options: ['① 全く説明できない', '② あまり説明できない', '③ ある程度説明できる', '④ かなり説明できる', '⑤ 強く自信を持って説明できる'] },
+      { id: 3, text: 'Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？', options: ['① 全く揃っていない', '② あまり揃っていない', '③ ある程度揃っている', '④ ほぼ同じ言葉で語られている', '⑤ 非常に揃っている'] },
+      { id: 4, text: 'Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？', options: ['① 全く思い浮かばない', '② あまり思い浮かばない', '③ ある程度思い浮かぶ', '④ 複数思い浮かぶ', '⑤ 具体事例をもとに明確に思い浮かぶ'] },
+      { id: 5, text: 'Q5: 当社サービスの『向いていないケース』や『弱み・課題』を説明できますか？', options: ['① 全く説明できない', '② あまり説明できない', '③ 少し説明できる', '④ ある程度説明できる', '⑤ 明確に説明できる'] }
+    ];
+
+    // ===== INITIALIZATION =====
+    function initializeApp() {
+      const mode = getUrlParameter('mode');
+      const company = getUrlParameter('company');
+
+      if (mode === 'survey' && company) {
+        document.getElementById('admin-mode').style.display = 'none';
+        document.getElementById('survey-mode').style.display = 'block';
+        const companyName = companies[company]?.name || '企業';
+        document.getElementById('survey-company-name').textContent = companyName;
+      } else {
+        document.getElementById('admin-mode').style.display = 'flex';
+        document.getElementById('survey-mode').style.display = 'none';
+        currentCompanyId = 'sample-corp';
+        renderCompanyList();
+        renderDashboard();
+      }
+    }
+
+    function getUrlParameter(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    // ===== ADMIN MODE FUNCTIONS =====
+    function renderCompanyList() {
+      const list = document.getElementById('company-list');
+      list.innerHTML = '';
+      Object.keys(companies).forEach(companyId => {
+        const company = companies[companyId];
+        const div = document.createElement('div');
+        div.className = 'company-item' + (companyId === currentCompanyId ? ' active' : '');
+        div.textContent = company.name;
+        div.onclick = () => switchCompany(companyId);
+        list.appendChild(div);
+      });
+    }
+
+    function switchCompany(companyId) {
+      currentCompanyId = companyId;
+      renderCompanyList();
+      renderDashboard();
+    }
+
+    function toggleAddCompanyForm() {
+      const form = document.getElementById('add-company-form');
+      form.classList.toggle('visible');
+      if (form.classList.contains('visible')) {
+        document.getElementById('company-name-input').focus();
+      }
+    }
+
+    function confirmAddCompany() {
+      const name = document.getElementById('company-name-input').value.trim();
+      if (name) {
+        const id = 'company-' + Date.now();
+        companies[id] = {
+          name: name,
+          surveyLink: `?mode=survey&company=${id}`,
+          responders: []
+        };
+        document.getElementById('company-name-input').value = '';
+        document.getElementById('add-company-form').classList.remove('visible');
+        switchCompany(id);
+      } else {
+        alert('企業名を入力してください');
+      }
+    }
+
+    function cancelAddCompany() {
+      document.getElementById('company-name-input').value = '';
+      document.getElementById('add-company-form').classList.remove('visible');
+    }
+
+    function saveDomainSetting() {
+      const domainInput = document.getElementById('domain-input').value.trim();
+      if (!domainInput) {
+        alert('ドメイン名を入力してください（例：https://charm-survey.example.com）');
+        return;
+      }
+
+      // https:// または http:// で始まるかチェック
+      if (!domainInput.startsWith('https://') && !domainInput.startsWith('http://')) {
+        alert('ドメイン名は「https://」または「http://」で始まる必要があります');
+        return;
+      }
+
+      // 末尾のスラッシュを削除
+      baseDomain = domainInput.endsWith('/') ? domainInput.slice(0, -1) : domainInput;
+
+      // ステータス表示
+      const statusDiv = document.getElementById('domain-status');
+      statusDiv.textContent = `✓ 設定完了：${baseDomain}`;
+      statusDiv.style.display = 'block';
+
+      // ダッシュボードを再レンダリング
+      if (currentCompanyId) {
+        renderResponderSection();
+      }
+    }
+
+    function renderDashboard() {
+      const company = companies[currentCompanyId];
+      if (!company) return;
+
+      document.getElementById('current-company-name').textContent = company.name;
+      document.getElementById('dashboard-subtitle').textContent = `${company.name} - ${company.responders.length}名の回答者`;
+
+      renderResponderSection();
+      renderQuestions();
+      renderReport();
+    }
+
+    function renderResponderSection() {
+      const company = companies[currentCompanyId];
+      const link = document.getElementById('survey-link');
+      const tbody = document.getElementById('responder-tbody');
+
+      // ドメイン名が設定されている場合は、そのドメイン + パラメータ
+      // 設定されていない場合は、「ドメインを設定してください」と表示
+      if (baseDomain) {
+        link.value = baseDomain + company.surveyLink;
+        generateQRCode(baseDomain + company.surveyLink);
+      } else {
+        link.value = '「設定」セクションでドメイン名を設定してください';
+        document.getElementById('qr-code').innerHTML = '<p style="color: #999; font-size: 12px; padding: 10px;">ドメイン設定後にQRコードが表示されます</p>';
+      }
+
+      tbody.innerHTML = '';
+      company.responders.forEach((responder, index) => {
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+          <td class="responder-name-cell" onclick="toggleResponderDetails(${index})">${responder.name}</td>
+          <td>${responder.department}</td>
+          <td>${responder.position}</td>
+          <td>${responder.joined}</td>
+          <td><span style="color: #10B981; font-weight: bold;">回答済み</span></td>
+        `;
+        tbody.appendChild(headerRow);
+
+        const detailsRow = document.createElement('tr');
+        detailsRow.className = 'responder-details-row';
+        detailsRow.id = `responder-details-${index}`;
+        detailsRow.innerHTML = `
+          <td colspan="5">
+            <div class="responder-details-content">
+              ${renderResponderAnswers(responder)}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(detailsRow);
+      });
+    }
+
+    function generateQRCode(url) {
+      const qrContainer = document.getElementById('qr-code');
+      qrContainer.innerHTML = ''; // Clear previous QR code
+
+      if (qrCodeInstance) {
+        qrCodeInstance = null;
+      }
+
+      qrCodeInstance = new QRCode(qrContainer, {
+        text: url,
+        width: 150,
+        height: 150,
+        colorDark: '#1F4788',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function toggleResponderDetails(index) {
+      const detailsRow = document.getElementById(`responder-details-${index}`);
+      detailsRow.classList.toggle('expanded');
+    }
+
+    function renderResponderAnswers(responder) {
+      let html = '';
+      responder.answers.forEach(answer => {
+        const question = questions[answer.q - 1];
+        html += `
+          <div class="answer-section">
+            <div class="question-label">Q${answer.q}</div>
+            <div class="question-text">${question.text}</div>
+            <div class="answer-text">"${answer.text}"</div>
+            <div class="answer-rating">評価: ${answer.rating}/5</div>
+          </div>
+        `;
+      });
+      return html;
+    }
+
+    function copySurveyLink() {
+      const link = document.getElementById('survey-link').value;
+      navigator.clipboard.writeText(link).then(() => {
+        const btn = event.target;
+        btn.textContent = 'コピーしました！';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'コピー';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    function openSurveyPreview() {
+      const link = document.getElementById('survey-link').value;
+      window.open(link, '_blank');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.getElementById(tabName).classList.add('active');
+
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      if (tabName === 'report-tab') {
+        currentSlide = 1;
+        renderReport();
+      }
+    }
+
+    function renderQuestions() {
+      const tbody = document.querySelector('#questions-tbody');
+      tbody.innerHTML = '';
+
+      questions.forEach(question => {
+        const tr = document.createElement('tr');
+        tr.id = `question-${question.id}`;
+        tr.innerHTML = `
+          <td class="question-text-cell">${question.text}</td>
+          <td>
+            <button class="edit-button" onclick="editQuestion(${question.id})">編集</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function editQuestion(questionId) {
+      const question = questions[questionId - 1];
+      const tr = document.getElementById(`question-${questionId}`);
+
+      const isEditing = tr.classList.contains('edit-mode');
+
+      if (!isEditing) {
+        tr.classList.add('edit-mode');
+
+        let optionsHtml = '<table class="options-table"><thead><tr><th>レーティング</th><th>選択肢テキスト</th></tr></thead><tbody>';
+        question.options.forEach((option, idx) => {
+          optionsHtml += `
+            <tr>
+              <td>${option.split(' ')[0]}</td>
+              <td><input type="text" id="option-${idx}" value="${option.substring(option.indexOf(' ')+1)}" /></td>
+            </tr>
+          `;
+        });
+        optionsHtml += '</tbody></table>';
+
+        tr.innerHTML = `
+          <td colspan="2">
+            <div style="padding: 10px;">
+              <label style="display: block; font-weight: bold; margin-bottom: 10px;">質問文を編集</label>
+              <textarea class="question-text-input" id="edit-question-input">${question.text}</textarea>
+              <label style="display: block; font-weight: bold; margin-bottom: 10px;">選択肢を編集</label>
+              ${optionsHtml}
+              <div class="edit-controls">
+                <button class="btn-save" onclick="saveQuestion(${questionId})">保存</button>
+                <button class="btn-cancel" onclick="cancelEditQuestion()">キャンセル</button>
+              </div>
+            </div>
+          </td>
+        `;
+        setTimeout(() => {
+          document.getElementById('edit-question-input').focus();
+        }, 100);
+      }
+    }
+
+    function saveQuestion(questionId) {
+      const newText = document.getElementById('edit-question-input').value;
+      if (newText.trim()) {
+        questions[questionId - 1].text = newText;
+
+        // Save options
+        const question = questions[questionId - 1];
+        question.options.forEach((_, idx) => {
+          const optionInput = document.getElementById(`option-${idx}`);
+          if (optionInput) {
+            const ratingLabel = question.options[idx].split(' ')[0];
+            question.options[idx] = ratingLabel + ' ' + optionInput.value;
+          }
+        });
+
+        renderQuestions();
+        alert('質問を保存しました');
+      }
+    }
+
+    function cancelEditQuestion() {
+      renderQuestions();
+    }
+
+    // ===== SLIDE FUNCTIONS =====
+    function renderReport() {
+      const company = companies[currentCompanyId];
+      const customText = document.getElementById('report-custom-text').value;
+      const avgRating = calculateAverageRating().toFixed(1);
+
+      // Slide 1: Summary
+      document.getElementById('slide-1-body').innerHTML = `
+        <p style="margin-bottom: 15px;">
+          <strong>平均評価:</strong> ${avgRating}/5<br>
+          <strong>回答者数:</strong> ${company.responders.length}名<br>
+          <strong>部署数:</strong> ${getUniqueDepartments().length}
+        </p>
+        <p style="margin-top: 15px; font-style: italic;">
+          ${customText || '（ここに追記内容が表示されます）'}
+        </p>
+      `;
+
+      // Slide 2: Question Analysis
+      let slide2Html = '<table style="width: 100%; margin-top: 10px;"><tbody>';
+      for (let q = 1; q <= 5; q++) {
+        const ratings = company.responders.flatMap(r => r.answers.filter(a => a.q === q).map(a => a.rating));
+        const avgQ = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 0;
+        slide2Html += `<tr><td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2);">Q${q}: ${avgQ}/5</td></tr>`;
+      }
+      slide2Html += '</tbody></table>';
+      document.getElementById('slide-2-body').innerHTML = slide2Html;
+
+      // Slide 3: Department Analysis
+      const departments = getUniqueDepartments();
+      let slide3Html = '<table style="width: 100%; margin-top: 10px;"><tbody>';
+      departments.forEach(dept => {
+        const deptResponders = company.responders.filter(r => r.department === dept);
+        const ratings = deptResponders.flatMap(r => r.answers.map(a => a.rating));
+        const avgDept = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 0;
+        slide3Html += `<tr><td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2);">${dept} (${deptResponders.length}名): ${avgDept}/5</td></tr>`;
+      });
+      slide3Html += '</tbody></table>';
+      document.getElementById('slide-3-body').innerHTML = slide3Html;
+
+      // Slide 4: AI Analysis
+      const q3Ratings = company.responders.flatMap(r => r.answers.filter(a => a.q === 3).map(a => a.rating));
+      const q3Avg = q3Ratings.length > 0 ? (q3Ratings.reduce((a, b) => a + b, 0) / q3Ratings.length).toFixed(1) : 0;
+      let slide4Html = '';
+      if (q3Avg < 2.5) {
+        slide4Html = '🔴 <strong>言語統一度が非常に低い</strong><br>組織内で事業定義が大きく異なっています。';
+      } else if (q3Avg < 3.5) {
+        slide4Html = '🟡 <strong>言語統一度が低い</strong><br>部署によって事業の説明方法にばらつきがあります。';
+      } else {
+        slide4Html = '🟢 <strong>言語統一度が高い</strong><br>組織内でサービス定義が比較的統一されています。';
+      }
+      document.getElementById('slide-4-body').innerHTML = slide4Html;
+
+      // Slide 5: Chart placeholder
+      document.getElementById('slide-5-body').innerHTML = '<p style="text-align: center; padding: 40px 0;">📊 グラフはPDF/スライド出力時に表示されます</p>';
+
+      // Slide 6: Recommendations
+      const slide6Html = `
+        <ol style="margin-left: 20px; line-height: 2;">
+          <li>事業定義の再共有</li>
+          <li>営業スクリプトの統一</li>
+          <li>部署別研修の実施</li>
+        </ol>
+      `;
+      document.getElementById('slide-6-body').innerHTML = slide6Html;
+
+      updateSlideIndicator();
+    }
+
+    function nextSlide() {
+      if (currentSlide < 6) {
+        document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+        currentSlide++;
+        document.getElementById(`slide-${currentSlide}`).classList.add('active');
+        updateSlideIndicator();
+      }
+    }
+
+    function previousSlide() {
+      if (currentSlide > 1) {
+        document.getElementById(`slide-${currentSlide}`).classList.remove('active');
+        currentSlide--;
+        document.getElementById(`slide-${currentSlide}`).classList.add('active');
+        updateSlideIndicator();
+      }
+    }
+
+    function updateSlideIndicator() {
+      document.getElementById('slide-number').textContent = `${currentSlide} / 6`;
+      document.getElementById('slide-counter').textContent = `スライド ${currentSlide} / 6`;
+    }
+
+    // ===== UTILITY FUNCTIONS =====
+    function calculateAverageRating() {
+      const company = companies[currentCompanyId];
+      let total = 0, count = 0;
+      company.responders.forEach(responder => {
+        responder.answers.forEach(answer => {
+          total += answer.rating;
+          count++;
+        });
+      });
+      return count > 0 ? total / count : 0;
+    }
+
+    function getUniqueDepartments() {
+      const company = companies[currentCompanyId];
+      return [...new Set(company.responders.map(r => r.department))];
+    }
+
+    function generatePDF() {
+      const customText = document.getElementById('report-custom-text').value;
+      if (customText) {
+        renderReport();
+      }
+      alert('PDF生成機能はステップ2で実装いたします。\n\nブラウザの「印刷」→「PDFで保存」をご利用ください。\n\nショートカット: Ctrl+P（Windows）/ Cmd+P（Mac）');
+    }
+
+    function generateGoogleSlides() {
+      const companyName = companies[currentCompanyId].name;
+      alert('Google Slides自動生成について\n\n以下の手順で進めてください：\n\n1. 新しいプレゼンテーションを作成\n2. 上記のレポート内容をスライドに貼り付け\n3. デザインをカスタマイズ\n\nステップ2で完全な自動化を実装いたします。');
+    }
+
+    function showPrompt() {
+      const company = companies[currentCompanyId];
+      const avgRating = calculateAverageRating().toFixed(1);
+      const respondentCount = company.responders.length;
+
+      const prompt = `以下の組織サーベイ結果を分析し、CEO向けのエグゼクティブサマリーを生成してください。
+
+企業名: ${company.name}
+回答者数: ${respondentCount}名
+平均評価: ${avgRating}/5
+
+## 出力形式
+- エグゼクティブサマリー（2-3段落）
+- 主要な気づき（3項目）
+- 推奨アクション（3項目）`;
+
+      const modal = document.getElementById('prompt-modal');
+      const content = document.getElementById('prompt-content');
+      content.textContent = prompt;
+      modal.classList.add('visible');
+    }
+
+    function closePromptModal() {
+      document.getElementById('prompt-modal').classList.remove('visible');
+    }
+
+    function copyPromptToClipboard() {
+      const content = document.getElementById('prompt-content').textContent;
+      navigator.clipboard.writeText(content).then(() => {
+        alert('プロンプトをコピーしました！');
+      });
+    }
+
+    // ===== SURVEY MODE =====
+    function startSurvey() {
+      const name = document.getElementById('survey-name').value;
+      const dept = document.getElementById('survey-department').value;
+      if (!name || !dept) {
+        alert('名前と部署を入力してください');
+        return;
+      }
+      document.getElementById('responder-info-section').classList.add('hidden');
+      document.getElementById('q1-section').classList.remove('hidden');
+      currentQuestion = 1;
+      updateSurveyProgress();
+      setupRatingListeners();
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < 5) {
+        document.getElementById(`q${currentQuestion}-section`).classList.add('hidden');
+        currentQuestion++;
+        document.getElementById(`q${currentQuestion}-section`).classList.remove('hidden');
+        updateSurveyProgress();
+        setupRatingListeners();
+      }
+    }
+
+    function previousQuestion() {
+      if (currentQuestion > 1) {
+        document.getElementById(`q${currentQuestion}-section`).classList.add('hidden');
+        currentQuestion--;
+        if (currentQuestion === 0) {
+          document.getElementById('responder-info-section').classList.remove('hidden');
+        } else {
+          document.getElementById(`q${currentQuestion}-section`).classList.remove('hidden');
+        }
+        updateSurveyProgress();
+      }
+    }
+
+    function updateSurveyProgress() {
+      const progress = (currentQuestion / 5) * 100;
+      document.getElementById('progress-bar').style.width = progress + '%';
+      document.getElementById('progress-text').textContent = `Q${currentQuestion} / 5`;
+    }
+
+    function setupRatingListeners() {
+      const q = currentQuestion;
+      const ratingOptions = document.querySelectorAll(`#q${q}-rating .rating-option`);
+      ratingOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+          e.preventDefault();
+          ratingOptions.forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+        });
+      });
+    }
+
+    function handleSurveySubmit(event) {
+      event.preventDefault();
+      alert('ご回答ありがとうございました！');
+      window.close();
+    }
+
+    // Initialize
+    initializeApp();
+  </script>
+</body>
+</html>
