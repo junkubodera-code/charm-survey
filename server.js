@@ -20,6 +20,13 @@ const db = require('./database');
 
 // ===== API ENDPOINTS =====
 
+// 0. Configuration API
+app.get('/api/config', (req, res) => {
+    res.json({
+          domain: process.env.DOMAIN || 'https://charm-survey-production.up.railway.app'
+    });
+});
+
 // 1. 企業一覧取得
 app.get('/api/companies', async (req, res) => {
   try {
