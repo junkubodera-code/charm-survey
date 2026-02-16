@@ -27,6 +27,8 @@ app.get('/api/config', (req, res) => {
       domain: process.env.DOMAIN || 'https://charm-survey-production.up.railway.app',
 
 // Survey link generation API
+    });
+});
 app.get('/api/survey-link/:companyId', (req, res) => {
       const domain = process.env.DOMAIN || 'https://charm-survey-production.up.railway.app';
       const companyId = req.params.companyId;
