@@ -18,13 +18,26 @@ app.use(express.static(path.join(__dirname)));
 // Database
 const db = require('./database');
 
+// Settings storage
+let domainSetting = process.env.DOMAIN || 'https://charm-survey-production.up.railway.app';
+
 // ===== API ENDPOINTS =====
 
 // 0. Configuration API
 app.get('/api/config', (req, res) => {
     res.json({
-          domain: process.env.DOMAIN || 'https://charm-survey-production.up.railway.app'
+      domain: domainSetting /api/survey-link
     });
+
+    // Settings update API
+    app.post('/api/settings', (req, res) => {
+          if (req.body.domain) {
+                  domainSetting = req.body.domain;
+                  res.json({ success: true, domain: domainSetting });
+          } else {
+                  res.status(400).json({ error: 'Domain required' });
+          }process.env.DOMAIN    domainSetting    });
+domainSetting
 });
 
 // Survey link generation API
