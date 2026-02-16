@@ -1,10 +1,3 @@
-
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CharmSurvey - 組織サーベイ管理システム</title>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -129,7 +122,7 @@
             <div class="report-container">
                 <div class="slides-controls">
                     <button id="prevSlide" class="btn btn-primary" onclick="previousSlide()">← 前へ</button>
-                    <span id="slideInfo" style="padding: 10px 20px; background: #f5f5f5; border-radius: 4px;">1 / 5</span>
+                    <span id="slideInfo" style="padding: 10px 20px; background: #f5f5f5; border-radius: 4px;">1 / 6</span>
                     <button id="nextSlide" class="btn btn-primary" onclick="nextSlide()">次へ →</button>
                     <button id="downloadPdf" class="btn btn-primary" onclick="downloadReportPDF()">📥 PDF</button>
                     <button id="downloadSlides" class="btn btn-primary" onclick="downloadReportSlides()">📥 Slides</button>
@@ -140,7 +133,72 @@
             </div>
         </div>
     </div>
-</div>    if (params.get('mode') === 'survey') {
+</div>
+
+<div id="surveyMode" class="hidden">
+    <div style="max-width: 800px; margin: 0 auto; padding: 40px 20px;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 id="surveyTitle" style="color: #1f4788; margin-bottom: 5px;">組織サーベイ</h2>
+            <p id="surveyCompany" style="color: #666; font-size: 14px;"></p>
+        </div>
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span id="progressQuestion" style="font-weight: bold;">Q1 / 5</span>
+                    <span id="progressPercent" style="color: #999; font-size: 13px;">約3分で完了</span>
+                </div>
+                <div style="background: #eee; height: 4px; border-radius: 2px; overflow: hidden;">
+                    <div id="progressBar" style="background: #1f4788; height: 100%; width: 20%; transition: width 0.3s;"></div>
+                </div>
+            </div>
+            <form id="surveyForm">
+                <div id="personalInfoSection">
+                    <h3 style="color: #1f4788; margin-bottom: 20px; font-size: 16px;">まず、あなたの情報を教えてください</h3>
+                    <div class="form-group">
+                        <label>名前</label>
+                        <input type="text" id="respondentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>入社年月日</label>
+                        <input type="date" id="joinDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>部署</label>
+                        <input type="text" id="department" placeholder="例：営業部、マーケティング部" required>
+                    </div>
+                    <div class="form-group">
+                        <label>役職</label>
+                        <input type="text" id="position" placeholder="例：営業部長" required>
+                    </div>
+                    <button type="button" id="startSurveyBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px;">回答を開始する</button>
+                </div>
+                <div id="questionsSection" class="hidden"></div>
+                <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; display: none; margin-top: 20px;">回答を送信する</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+const surveyQuestions = [
+    { id: 1, title: "当社のサービス／事業を一言で表すと？", textQuestion: "記述：20〜30文字", textPlaceholder: "", textMaxLength: 100, ratingQuestion: "上記の回答はどれくらい自信を持って言えますか？", ratingOptions: ["①全く言えない", "②あまり言えない", "③ある程度言える", "④かなり言える", "⑤明確に言える"] },
+    { id: 2, title: "当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？", textQuestion: "記述：300文字以内", textPlaceholder: "", textMaxLength: 300, ratingQuestion: "上記の回答はどれくらい自信を持って言えますか？", ratingOptions: ["①全く説明できない", "②あまり説明できない", "③ある程度説明できる", "④かなり説明できる", "⑤強く自信を持って説明できる"] },
+    { id: 3, title: "社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？", textQuestion: "記述：300文字以内（理由）", textPlaceholder: "", textMaxLength: 300, ratingQuestion: "上記の回答はどれくらい自信を持って言えますか？", ratingOptions: ["①全く揃っていない", "②あまり揃っていない", "③ある程度揃っている", "④ほぼ同じ言葉で語られている", "⑤非常に揃っている"] },
+    { id: 4, title: "当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？", textQuestion: "記述：300文字以内（内容/理由）", textPlaceholder: "", textMaxLength: 300, ratingQuestion: "上記の回答はどれくらい自信を持って言えますか？", ratingOptions: ["①全く思い浮かばない", "②あまり思い浮かばない", "③ある程度思い浮かぶ", "④複数思い浮かぶ", "⑤具体事例をもとに明確に思い浮かぶ"] },
+    { id: 5, title: "当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？", textQuestion: "記述：300文字以内", textPlaceholder: "", textMaxLength: 300, ratingQuestion: "上記の回答はどれくらい自信を持って言えますか？", ratingOptions: ["①全く説明できない", "②あまり説明できない", "③少し説明できる", "④ある程度説明できる", "⑤明確に説明できる"] }
+];
+
+let baseDomain = 'https://charm-survey-production.up.railway.app';
+let companies = [];
+let currentCompanyId = 'sample-corp';
+let isAdminMode = true;
+let surveyResponses = [];
+let currentQuestionIndex = 0;
+let currentSlide = 1;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'survey') {
         enterSurveyMode(params.get('company'));
     } else {
         initializeAdmin();
@@ -268,7 +326,6 @@ function loadRespondents() {
     document.getElementById('responseCount').textContent = storedRespondents.length;
 }
 
-// サンプルデータ生成
 function addSampleData() {
     const sampleRespondents = [
         { name: '田中太郎', department: '営業部', position: '営業課長', joinDate: '2020-01-15', answers: [{ questionId: 1, text: 'クラウドベースのサーベイプラットフォーム', rating: '5' }, { questionId: 2, text: '使いやすいインターフェースと豊富な機能', rating: '4' }, { questionId: 3, text: '社内で積極的に活用されている', rating: '5' }, { questionId: 4, text: '顧客満足度が向上した事例がある', rating: '4' }, { questionId: 5, text: '初期導入コストと学習時間が必要', rating: '3' }] },
@@ -330,7 +387,6 @@ function displayReport() {
 function generateReportSlides(respondents) {
     const slides = [];
 
-    // スライド1：タイトル
     slides.push(`
         <div style="text-align: center; padding: 40px;">
             <h1 style="color: #1f4788; font-size: 32px; margin-bottom: 20px;">組織サーベイ結果レポート</h1>
@@ -339,7 +395,6 @@ function generateReportSlides(respondents) {
         </div>
     `);
 
-    // スライド2-6：質問ごとの結果
     surveyQuestions.forEach((q, idx) => {
         let ratingCounts = [0, 0, 0, 0, 0];
         respondents.forEach(r => {
@@ -538,101 +593,7 @@ function submitSurvey() {
     `;
 }
 
-// 初期化時にサンプルデータを追加
-setTimeout(addSampleData, 500);   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>* {margin: 0; padding: 0; box-sizing: border-box;} body {font-family: 'Arial', 'Segoe UI', sans-serif; background-color: #f5f5f5; color: #333;} .admin-container {display: flex; height: 100vh;} .sidebar {width: 280px; background-color: #1f4788; color: white; padding: 20px; overflow-y: auto; box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);} .sidebar h2 {font-size: 18px; margin-bottom: 30px; display: flex; align-items: center; gap: 8px;} .sidebar-section {margin-bottom: 25px;} .sidebar-section-title {font-size: 12px; font-weight: bold; color: #aaa; margin-bottom: 12px; text-transform: uppercase;} .sidebar-item {padding: 10px 15px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.3s;} .sidebar-item:hover {background-color: rgba(255, 255, 255, 0.1);} .sidebar-item.active {background-color: #0056b3;} .sidebar-item.add-btn {background-color: #28a745; text-align: center; font-weight: bold;} .sidebar-item.add-btn:hover {background-color: #218838;} .main-content {flex: 1; overflow-y: auto; padding: 40px; background-color: #fff;} .company-header {margin-bottom: 40px;} .company-header h1 {font-size: 32px; color: #1f4788; margin-bottom: 5px;} .company-header p {color: #666; font-size: 14px;} .dashboard-title {font-size: 28px; color: #1f4788; margin-bottom: 10px;} .response-count {font-size: 14px; color: #999; margin-bottom: 30px;} .tabs {display: flex; border-bottom: 2px solid #ddd; margin-bottom: 30px;} .tab {padding: 12px 20px; cursor: pointer; color: #666; border-bottom: 3px solid transparent; transition: all 0.3s;} .tab.active {color: #1f4788; border-bottom-color: #1f4788;} .tab:hover {color: #1f4788;} .form-group {margin-bottom: 20px;} .form-group label {display: block; font-weight: bold; margin-bottom: 8px; color: #333; font-size: 14px;} .form-group input[type="text"], .form-group input[type="date"], .form-group select, .form-group textarea {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit;} .form-group textarea {resize: vertical; min-height: 80px;} .form-group input:focus, .form-group select:focus, .form-group textarea:focus {outline: none; border-color: #1f4788; box-shadow: 0 0 5px rgba(31, 71, 136, 0.3);} .rating-group {display: flex; gap: 10px; margin-top: 8px;} .rating-option {flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: all 0.3s; font-size: 12px;} .rating-option:hover {border-color: #1f4788; background-color: #f0f5ff;} .rating-option input {display: none;} .rating-option input:checked + label {color: #1f4788; font-weight: bold;} .btn {padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.3s;} .btn-primary {background-color: #1f4788; color: white;} .btn-primary:hover {background-color: #0056b3;} .btn-secondary {background-color: #6c757d; color: white; margin-left: 10px;} .btn-secondary:hover {background-color: #5a6268;} .question-block {background: white; padding: 20px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #1f4788;} .question-number {font-weight: bold; color: #1f4788; margin-bottom: 10px;} .qr-container {text-align: center; margin-top: 20px;} #qrcode {display: inline-block; border: 1px solid #ddd; padding: 10px; border-radius: 4px;} table {width: 100%; border-collapse: collapse; margin-top: 20px;} table thead {background-color: #1f4788; color: white;} table th, table td {padding: 12px; text-align: left; border-bottom: 1px solid #ddd;} table tr:hover {background-color: #f5f5f5;} .link-section {background: #f0f5ff; padding: 15px; border-radius: 4px; margin-bottom: 20px;} .link-section h4 {color: #1f4788; margin-bottom: 10px;} .link-input {display: flex; gap: 10px; margin-bottom: 10px;} .link-input input {flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;} .link-input button {padding: 10px 15px; background-color: #1f4788; color: white; border: none; border-radius: 4px; cursor: pointer;} .link-input button:hover {background-color: #0056b3;} .hidden {display: none;}</style>
-</head>
-<body>
-<div class="admin-container">
-<div class="sidebar">
-<h2>🎯 CharmSurvey</h2>
-<div class="sidebar-section">
-<div class="sidebar-section-title">設定</div>
-<input type="text" id="domainInput" placeholder="https://example.com" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #555; border-radius: 4px; color: black;">
-<button id="saveDomainBtn" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">保存</button>
-</div>
-<div class="sidebar-section">
-<div class="sidebar-section-title">企業管理</div>
-<button id="addCompanyBtn" class="sidebar-item" style="background-color: #28a745; text-align: center; font-weight: bold;">+ 新規企業追加</button>
-</div>
-<div id="companyList"></div>
-</div>
-<div class="main-content">
-<div class="company-header">
-<h1 id="companyName">サンプル株式会社</h1>
-<p id="companyEmail">kubodera@blue-sapiens.com</p>
-</div>
-<div class="dashboard-title">ダッシュボード</div>
-<div class="response-count"><span id="responseCount">0</span>名の回答者</div>
-<div class="tabs">
-<div class="tab active" data-tab="respondents">回答者管理</div>
-<div class="tab" data-tab="questions">質問管理</div>
-<div class="tab" data-tab="report">レポート</div>
-</div>
-<div id="respondents-tab" class="tab-content">
-<div class="link-section">
-<h4>🔗 回答者専用リンク</h4>
-<p style="margin-bottom: 10px; color: #666; font-size: 13px;">このリンクをクライアントに送付してください。</p>
-<div class="link-input">
-<input type="text" id="surveyLink" readonly>
-<button onclick="copySurveyLink()">コピー</button>
-<button onclick="previewSurvey()">プレビュー</button>
-</div>
-<div class="qr-container"><div id="qrcode"></div></div>
-</div>
-<h3 style="color: #1f4788; margin-top: 30px; margin-bottom: 15px;">回答者一覧</h3>
-<table><thead><tr><th>回答者名</th><th>部署</th><th>役職</th><th>入社日</th><th>回答状況</th></tr></thead><tbody id="respondentsList"></tbody></table>
-</div>
-<div id="questions-tab" class="tab-content hidden">
-<h3 style="color: #1f4788; margin-bottom: 15px;">サーベイ質問</h3>
-<div id="questionsList"></div>
-</div>
-</div>
-</div>
-<div id="surveyMode" class="hidden">
-<div style="max-width: 800px; margin: 0 auto; padding: 40px 20px;">
-<h2 id="surveyTitle" style="color: #1f4788; margin-bottom: 5px;">組織サーベイ</h2>
-<form id="surveyForm">
-<div id="personalInfoSection">
-<div class="form-group"><label>名前</label><input type="text" id="respondentName" required></div>
-<div class="form-group"><label>入社年月日</label><input type="date" id="joinDate" required></div>
-<div class="form-group"><label>部署</label><input type="text" id="department" placeholder="例：営業部、マーケティング部" required></div>
-<div class="form-group"><label>役職</label><input type="text" id="position" placeholder="例：営業部長" required></div>
-<button type="button" id="startSurveyBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px;">回答を開始する</button>
-</div>
-<div id="questionsSection" class="hidden"></div>
-<button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; display: none; margin-top: 20px;">回答を送信する</button>
-</form>
-</div>
-</div>
-<script>
-const surveyQuestions=[{id:1,title:"当社のサービス／事業を一言で表すと？",textQuestion:"記述：20〜30文字",textPlaceholder:"",textMaxLength:100,ratingQuestion:"上記の回答はどれくらい自信を持って言えますか？",ratingOptions:["①全く言えない","②あまり言えない","③ある程度言える","④かなり言える","⑤明確に言える"]},{id:2,title:"当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？",textQuestion:"記述：300文字以内",textPlaceholder:"",textMaxLength:300,ratingQuestion:"上記の回答はどれくらい自信を持って言えますか？",ratingOptions:["①全く説明できない","②あまり説明できない","③ある程度説明できる","④かなり説明できる","⑤強く自信を持って説明できる"]},{id:3,title:"社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？",textQuestion:"記述：300文字以内（理由）",textPlaceholder:"",textMaxLength:300,ratingQuestion:"上記の回答はどれくらい自信を持って言えますか？",ratingOptions:["①全く揃っていない","②あまり揃っていない","③ある程度揃っている","④ほぼ同じ言葉で語られている","⑤非常に揃っている"]},{id:4,title:"当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？",textQuestion:"記述：300文字以内（内容/理由）",textPlaceholder:"",textMaxLength:300,ratingQuestion:"上記の回答はどれくらい自信を持って言えますか？",ratingOptions:["①全く思い浮かばない","②あまり思い浮かばない","③ある程度思い浮かぶ","④複数思い浮かぶ","⑤具体事例をもとに明確に思い浮かぶ"]},{id:5,title:"当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？",textQuestion:"記述：300文字以内",textPlaceholder:"",textMaxLength:300,ratingQuestion:"上記の回答はどれくらい自信を持って言えますか？",ratingOptions:["①全く説明できない","②あまり説明できない","③少し説明できる","④ある程度説明できる","⑤明確に説明できる"]}];
-let baseDomain="https://charm-survey-production.up.railway.app",companies=[],currentCompanyId="sample-corp",isAdminMode=!0,surveyResponses=[],currentQuestionIndex=0;
-document.addEventListener("DOMContentLoaded",function(){const e=new URLSearchParams(window.location.search);"survey"===e.get("mode")?enterSurveyMode(e.get("company")):initializeAdmin()});
-function initializeAdmin(){isAdminMode=!0,loadDomain(),initializeCompanies(),loadRespondents(),setupEventListeners()}
-function setupEventListeners(){document.getElementById("saveDomainBtn").addEventListener("click",saveDomainSetting),document.getElementById("addCompanyBtn").addEventListener("click",addNewCompany),document.querySelectorAll(".tab").forEach(e=>{e.addEventListener("click",function(){switchTab(this.getAttribute("data-tab"))})}),document.getElementById("startSurveyBtn").addEventListener("click",startSurvey),document.getElementById("surveyForm").addEventListener("submit",submitSurvey)}
-function loadDomain(){const e=localStorage.getItem("domainSetting");e&&(baseDomain=e),document.getElementById("domainInput").value=baseDomain,generateSurveyLink()}
-function saveDomainSetting(){const e=document.getElementById("domainInput").value.trim();e?(baseDomain=e,localStorage.setItem("domainSetting",e),generateSurveyLink(),document.getElementById("domainMessage").textContent="ドメイン設定が完了しました。QRコードが生成されました。",setTimeout(()=>{document.getElementById("domainMessage").textContent=""},3e3)):alert("ドメイン名を入力してください")}
-function generateSurveyLink(){const e=`${baseDomain}/?mode=survey&company=${currentCompanyId}`;document.getElementById("surveyLink").value=e,document.getElementById("qrcode").innerHTML="",new QRCode(document.getElementById("qrcode"),{text:e,width:200,height:200})}
-function copySurveyLink(){const e=document.getElementById("surveyLink").value;navigator.clipboard.writeText(e).then(()=>{alert("リンクをコピーしました")})}
-function previewSurvey(){window.open(document.getElementById("surveyLink").value,"_blank")}
-function initializeCompanies(){companies=JSON.parse(localStorage.getItem("companies"))||[{id:"sample-corp",name:"サンプル株式会社",email:"kubodera@blue-sapiens.com"}],localStorage.setItem("companies",JSON.stringify(companies)),renderCompanyList(),selectCompany("sample-corp")}
-function renderCompanyList(){const e=companies.map(e=>`<div class="sidebar-item ${e.id===currentCompanyId?"active":""}" onclick="selectCompany('${e.id}')">${e.name}</div>`).join("");document.getElementById("companyList").innerHTML=e}
-function selectCompany(e){currentCompanyId=e;const t=companies.find(e=>e.id===currentCompanyId);t&&(document.getElementById("companyName").textContent=t.name,document.getElementById("companyEmail").textContent=t.email),renderCompanyList(),generateSurveyLink(),loadRespondents()}
-function addNewCompany(){const e=prompt("企業名を入力してください");if(e){const t=prompt("メールアドレスを入力してください");t&&(companies.push({id:e.toLowerCase().replace(/\s/g,"-"),name:e,email:t}),localStorage.setItem("companies",JSON.stringify(companies)),initializeCompanies())}}
-function loadRespondents(){const e=JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`))||[],t=document.getElementById("respondentsList");t.innerHTML=e.map(e=>`<tr><td>${e.name}</td><td>${e.department}</td><td>${e.position}</td><td>${e.joinDate}</td><td style="color: #28a745;">回答済み</td></tr>`).join(""),document.getElementById("responseCount").textContent=e.length}
-function switchTab(e){document.querySelectorAll(".tab-content").forEach(e=>e.classList.add("hidden")),document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active")),document.getElementById(e+"-tab").classList.remove("hidden"),event.target.classList.add("active"),"questions"===e&&displayQuestions()}
-function displayQuestions(){const e=surveyQuestions.map((e,t)=>`<div class="question-block"><div class="question-number">Q${e.id}. ${e.title}</div><div style="font-size: 13px; color: #666;">1. ${e.textQuestion}</div><div style="font-size: 13px; color: #666;">2. 5段階：${e.ratingOptions.join(" ")}</div></div>`).join("");document.getElementById("questionsList").innerHTML=e}
-function enterSurveyMode(e){isAdminMode=!1,currentCompanyId=e||"sample-corp";const t=companies.find(e=>e.id===currentCompanyId)||{name:"サンプル株式会社"};document.getElementById("surveyMode").classList.remove("hidden"),document.querySelector(".admin-container").classList.add("hidden"),document.getElementById("surveyTitle").textContent="組織サーベイ",renderSurveyQuestions()}
-function renderSurveyQuestions(){const e=document.getElementById("questionsSection"),t=surveyQuestions.map((e,t)=>`<div class="question-block" style="display: ${t===currentQuestionIndex?"block":"none"};" id="question-${t}"><div class="question-number">Q${e.id}. ${e.title}</div><div class="form-group"><label style="color: #666; font-weight: normal; font-size: 13px;">${e.textQuestion}</label><textarea id="text-answer-${t}" placeholder="${e.textPlaceholder}" maxlength="${e.textMaxLength}" required></textarea></div><div class="form-group"><label style="color: #666; font-weight: normal; font-size: 13px;">${e.ratingQuestion}</label><div class="rating-group">${e.ratingOptions.map((e,t)=>`<label class="rating-option"><input type="radio" name="rating-${t}" value="${t+1}" required><span style="font-size: 12px;">${e}</span></label>`).join("")}</div></div><div style="margin-top: 20px; display: flex; gap: 10px;">${t>0?`<button type="button" class="btn btn-secondary" onclick="prevQuestion()">戻る</button>`:""}<button type="button" class="btn btn-primary" onclick="nextQuestion()" style="flex: 1;">${t===surveyQuestions.length-1?"完了":"次へ"}</button></div></div>`).join("");e.innerHTML=t,e.classList.remove("hidden"),document.getElementById("personalInfoSection").classList.add("hidden"),document.getElementById("submitBtn").style.display="none"}
-function startSurvey(){const e=document.getElementById("respondentName").value.trim(),t=document.getElementById("department").value.trim(),n=document.getElementById("position").value.trim(),r=document.getElementById("joinDate").value;e&&t&&n&&r?(currentQuestionIndex=0,renderSurveyQuestions(),updateProgress()):alert("全ての項目を入力してください")}
-function nextQuestion(){currentQuestionIndex<surveyQuestions.length-1?(currentQuestionIndex++,renderSurveyQuestions(),updateProgress()):submitSurvey()}
-function prevQuestion(){currentQuestionIndex>0&&(currentQuestionIndex--,renderSurveyQuestions(),updateProgress())}
-function updateProgress(){const e=surveyQuestions.length,t=(currentQuestionIndex+1)/e*100;document.getElementById("progressQuestion").textContent=`Q${currentQuestionIndex+1} / ${e}`}
-function submitSurvey(){const e={name:document.getElementById("respondentName").value,department:document.getElementById("department").value,position:document.getElementById("position").value,joinDate:document.getElementById("joinDate").value,answers:[]};surveyQuestions.forEach((t,n)=>{e.answers.push({questionId:t.id,text:document.getElementById(`text-answer-${n}`).value,rating:document.querySelector(`input[name="rating-${n}"]:checked`).value})}),JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`))||[];const t=JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`))||[];t.push(e),localStorage.setItem(`respondents_${currentCompanyId}`,JSON.stringify(t)),document.getElementById("surveyForm").innerHTML=`<div style="text-align: center; padding: 40px;"><h2 style="color: #28a745; margin-bottom: 20px;">✓ ご回答ありがとうございました</h2><p style="color: #666; font-size: 16px;">あなたのご意見は大切に保管されました。</p></div>`}
-function copySurveyLink(){navigator.clipboard.writeText(document.getElementById("surveyLink").value)}
+setTimeout(addSampleData, 500);
 </script>
 </body>
 </html>
