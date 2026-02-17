@@ -9,6 +9,7 @@
     <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/chart.min.js"></script>
     <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/qrcode.min.js"></script>
     <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/api.js"></script>
+    <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/pptxgen.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1507,13 +1508,8 @@
                         </thead>
                         <tbody id="distributionTable">
                     <tr>
-                        <td>2026/2/17 10:39:56</td>
-                        <td><span class="link-display" style="margin: 0;">https://charm-survey-production.up.railway.app/?mode=survey&amp;company=sample-corp&amp;linkId=link-1771292396385</span></td>
-                        <td><span class="status-badge status-active">配布中</span></td>
-                        <td>0名</td>
-                        <td><input type="text" value="" onchange="updateLinkMemo(&#39;link-1771292396385&#39;, this.value)" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;"></td>
-                        <td>
-                            <button class="btn btn-secondary btn-sm" onclick="copyLink(&#39;https://charm-survey-production.up.railway.app/?mode=survey&amp;company=sample-corp&amp;linkId=link-1771292396385&#39;)">コピー</button>
+                        <td colspan="6" style="text-align: center; color: #999;">
+                            URLを生成してから配布してください
                         </td>
                     </tr>
                 </tbody>
@@ -1532,15 +1528,7 @@
                                 <th>回答率</th>
                             </tr>
                         </thead>
-                        <tbody id="historyTable">
-                    <tr>
-                        <td>link-1771292396385</td>
-                        <td>2026/2/17 10:39:56</td>
-                        <td><span class="status-badge status-active">配布中</span></td>
-                        <td>0名</td>
-                        <td>0.0%</td>
-                    </tr>
-                </tbody>
+                        <tbody id="historyTable"></tbody>
                     </table>
                 </div>
             </div>
@@ -1550,7 +1538,7 @@
                 <div class="slide-controls">
                     <button class="btn btn-secondary btn-sm" onclick="previousSlide()">← 前へ</button>
                     <span class="slide-info">
-                        <span id="slideCounter">1</span> / <span id="slideTotal">13</span>
+                        <span id="slideCounter">1</span> / <span id="slideTotal">1</span>
                     </span>
                     <button class="btn btn-secondary btn-sm" onclick="nextSlide()">次へ →</button>
                     <button class="btn btn-primary btn-sm" onclick="downloadReportPDF()" style="margin-left: auto; margin-right: 10px;">PDFダウンロード</button>
@@ -1560,64 +1548,8 @@
 
                 <div class="slide-viewer">
                     <div class="slide-content" id="slideContent">
-                <div class="slide-title">エグゼクティブサマリー</div>
-                
-                <div class="slide-section">
-                    <div class="stat-box">
-                        <div class="stat-item">
-                            <div class="stat-label">企業名</div>
-                            <div class="stat-value" style="font-size: 16px;">サンプル株式会社</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">回答者数</div>
-                            <div class="stat-value">18名</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">調査日</div>
-                            <div class="stat-value" style="font-size: 14px;">2026/2/17</div>
-                        </div>
+                        <p>レポートを生成してください</p>
                     </div>
-                </div>
-
-                <div class="slide-section">
-                    <div class="slide-subtitle">全体スコア（5点満点）</div>
-                    <div class="stat-box">
-                        
-                            <div class="stat-item">
-                                <div class="stat-label">Q1</div>
-                                <div class="stat-value">3.4</div>
-                            </div>
-                        
-                            <div class="stat-item">
-                                <div class="stat-label">Q2</div>
-                                <div class="stat-value">3.4</div>
-                            </div>
-                        
-                            <div class="stat-item">
-                                <div class="stat-label">Q3</div>
-                                <div class="stat-value">2.7</div>
-                            </div>
-                        
-                            <div class="stat-item">
-                                <div class="stat-label">Q4</div>
-                                <div class="stat-value">3.2</div>
-                            </div>
-                        
-                            <div class="stat-item">
-                                <div class="stat-label">Q5</div>
-                                <div class="stat-value">2.8</div>
-                            </div>
-                        
-                    </div>
-                </div>
-
-                <div class="insight-box">
-                    <div class="insight-title">戦略ズレの診断</div>
-                    <div class="insight-text">組織内にズレが見られます：
-Q3, Q4 で回答が分散。定義や理解が統一されていない可能性があります。</div>
-                </div>
-            
-            </div>
                 </div>
             </div>
         </div>
@@ -1699,7 +1631,10 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
 
         function initializeAdmin() {
             initializeCompanies();
-            selectCompany('sample-corp');
+            // 最後に選択した企業を復元、なければsample-corpを選択
+            const lastCompanyId = localStorage.getItem('lastSelectedCompanyId');
+            const companyToSelect = lastCompanyId && companies.find(c => c.id === lastCompanyId) ? lastCompanyId : 'sample-corp';
+            selectCompany(companyToSelect);
             addSampleData();
             loadSurveyLinks();
         }
@@ -1747,6 +1682,7 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
 
         function selectCompany(companyId) {
             currentCompanyId = companyId;
+            localStorage.setItem('lastSelectedCompanyId', companyId);
             const company = companies.find(c => c.id === companyId);
             document.getElementById('companyName').textContent = company ? company.name : companyId;
             renderCompanyList();
@@ -2138,39 +2074,55 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
                 insight += `\n${highVar.join(', ')} で回答が分散。定義や理解が統一されていない可能性があります。`;
             }
 
+            const overallAvg = avgScores.length > 0 ? (avgScores.reduce((sum, s) => sum + s.avg, 0) / avgScores.length) : 0;
+            const scoreColor = overallAvg >= 4 ? '#28a745' : overallAvg >= 3 ? '#ffc107' : '#dc3545';
+
             return `
-                <div class="slide-section">
-                    <div class="stat-box">
-                        <div class="stat-item">
-                            <div class="stat-label">企業名</div>
-                            <div class="stat-value" style="font-size: 16px;">${company}</div>
+                <div class="slide-section" style="background: linear-gradient(135deg, #1f4788 0%, #2d5aa4 100%); color: white; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">企業名</div>
+                            <div style="font-size: 18px; font-weight: 700;">${company}</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-label">回答者数</div>
-                            <div class="stat-value">${respondents.length}名</div>
+                        <div style="text-align: center; border-left: 1px solid rgba(255,255,255,0.3); border-right: 1px solid rgba(255,255,255,0.3);">
+                            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">回答者数</div>
+                            <div style="font-size: 18px; font-weight: 700;">${respondents.length}名</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-label">調査日</div>
-                            <div class="stat-value" style="font-size: 14px;">${new Date().toLocaleDateString('ja-JP')}</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">調査日</div>
+                            <div style="font-size: 18px; font-weight: 700;">${new Date().toLocaleDateString('ja-JP')}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="slide-section">
-                    <div class="slide-subtitle">全体スコア（5点満点）</div>
-                    <div class="stat-box">
-                        ${avgScores.map(s => `
-                            <div class="stat-item">
-                                <div class="stat-label">Q${s.qId}</div>
-                                <div class="stat-value">${s.avg.toFixed(1)}</div>
-                            </div>
-                        `).join('')}
+                    <div class="slide-subtitle" style="margin-bottom: 15px;">全体スコア分析</div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 14px; color: #666; margin-bottom: 5px;">総合評価スコア</div>
+                            <div style="font-size: 36px; font-weight: 700; color: ${scoreColor};">${overallAvg.toFixed(1)} / 5.0</div>
+                        </div>
+                        ${avgScores.map(s => {
+                            const barColor = s.avg >= 4 ? '#28a745' : s.avg >= 3 ? '#ffc107' : '#dc3545';
+                            const barWidth = (s.avg / 5) * 100;
+                            return `
+                                <div style="margin-bottom: 12px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="font-weight: 600; font-size: 13px;">Q${s.qId}</span>
+                                        <span style="font-weight: 700; color: ${barColor};">${s.avg.toFixed(1)}</span>
+                                    </div>
+                                    <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+                                        <div style="background: ${barColor}; height: 100%; width: ${barWidth}%; border-radius: 6px;"></div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
 
-                <div class="insight-box">
-                    <div class="insight-title">戦略ズレの診断</div>
-                    <div class="insight-text">${insight}</div>
+                <div class="insight-box" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
+                    <div class="insight-title" style="color: #856404; margin-bottom: 8px;">戦略ズレの診断</div>
+                    <div class="insight-text" style="color: #856404; font-size: 13px; line-height: 1.6;">${insight}</div>
                 </div>
             `;
         }
@@ -2181,40 +2133,39 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
 
             return `
                 <div class="slide-section">
-                    <div class="slide-subtitle">Q別平均スコア</div>
-                    <table class="comparison-table">
-                        <tr>
-                            <th>設問</th>
-                            <th>平均</th>
-                            <th>標準偏差</th>
-                            <th>①</th>
-                            <th>②</th>
-                            <th>③</th>
-                            <th>④</th>
-                            <th>⑤</th>
-                        </tr>
+                    <div class="slide-subtitle">Q別スコア比較</div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
                         ${avgScores.map(s => {
                             const v = calculateVariance(respondents).find(v => v.qId === s.qId);
                             const d = distrib[s.qId];
+                            const barColor = s.avg >= 4 ? '#28a745' : s.avg >= 3 ? '#ffc107' : '#dc3545';
+                            const barWidth = (s.avg / 5) * 100;
                             return `
-                                <tr>
-                                    <td>Q${s.qId}</td>
-                                    <td>${s.avg.toFixed(2)}</td>
-                                    <td>${v.std_dev.toFixed(2)}</td>
-                                    <td>${d['1'] || 0}</td>
-                                    <td>${d['2'] || 0}</td>
-                                    <td>${d['3'] || 0}</td>
-                                    <td>${d['4'] || 0}</td>
-                                    <td>${d['5'] || 0}</td>
-                                </tr>
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <span style="font-weight: 600; font-size: 13px; min-width: 40px;">Q${s.qId}</span>
+                                        <span style="font-weight: 700; color: ${barColor}; margin-left: 10px; min-width: 35px;">平均: ${s.avg.toFixed(2)}</span>
+                                        <span style="font-size: 12px; color: #999; margin-left: 10px; min-width: 50px;">標差: ${v.std_dev.toFixed(2)}</span>
+                                    </div>
+                                    <div style="background: #e0e0e0; height: 20px; border-radius: 4px; overflow: hidden; flex-grow: 1;">
+                                        <div style="background: ${barColor}; height: 100%; width: ${barWidth}%; border-radius: 4px;"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: #999;">
+                                        <span>①${d['1'] || 0}</span>
+                                        <span>②${d['2'] || 0}</span>
+                                        <span>③${d['3'] || 0}</span>
+                                        <span>④${d['4'] || 0}</span>
+                                        <span>⑤${d['5'] || 0}</span>
+                                    </div>
+                                </div>
                             `;
                         }).join('')}
-                    </table>
+                    </div>
                 </div>
 
-                <div class="insight-box">
-                    <div class="insight-title">分析ポイント</div>
-                    <div class="insight-text">
+                <div class="insight-box" style="background: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; border-radius: 4px;">
+                    <div class="insight-title" style="color: #0066cc; margin-bottom: 8px;">分析ポイント</div>
+                    <div class="insight-text" style="color: #0066cc; font-size: 13px; line-height: 1.6;">
                         • 平均スコアが低い（3以下）設問は、組織内で理解・認識が不足している可能性<br>
                         • 標準偏差が大きい設問は、回答者間でのズレが大きい（定義が統一されていない）<br>
                         • ①②の回答者が多い設問は「判断がつかない」状態が多いことを示唆
@@ -2284,33 +2235,32 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
             return `
                 <div class="slide-section">
                     <div class="slide-subtitle">部署別平均スコア比較</div>
-                    <table class="comparison-table">
-                        <tr>
-                            <th>部署</th>
-                            <th>Q1</th>
-                            <th>Q2</th>
-                            <th>Q3</th>
-                            <th>Q4</th>
-                            <th>Q5</th>
-                            <th>平均</th>
-                        </tr>
-                        ${departments.map(dept => {
-                            const data = deptData[dept];
-                            const avg = data.reduce((a, b) => a + b.avg, 0) / 5;
-                            return `
-                                <tr>
-                                    <td>${dept}</td>
-                                    ${data.map(d => `<td>${d.avg.toFixed(1)}</td>`).join('')}
-                                    <td style="font-weight: 700;">${avg.toFixed(1)}</td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </table>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px;">
+                            <div style="font-weight: 700; font-size: 12px; padding: 10px; background: #1f4788; color: white; border-radius: 4px; text-align: center;">部署</div>
+                            <div style="font-weight: 700; font-size: 12px; padding: 10px; background: #1f4788; color: white; border-radius: 4px; text-align: center;">Q1</div>
+                            <div style="font-weight: 700; font-size: 12px; padding: 10px; background: #1f4788; color: white; border-radius: 4px; text-align: center;">Q2</div>
+                            <div style="font-weight: 700; font-size: 12px; padding: 10px; background: #1f4788; color: white; border-radius: 4px; text-align: center;">Q3</div>
+                            <div style="font-weight: 700; font-size: 12px; padding: 10px; background: #1f4788; color: white; border-radius: 4px; text-align: center;">Q4</div>
+                            <div style="font-weight: 700; font-size: 12px; padding: 10px; background: #1f4788; color: white; border-radius: 4px; text-align: center;">Q5</div>
+                            ${departments.map(dept => {
+                                const data = deptData[dept];
+                                const avg = data.reduce((a, b) => a + b.avg, 0) / 5;
+                                return `
+                                    <div style="padding: 10px; background: white; border-radius: 4px; border-left: 3px solid #ff6b6b; font-weight: 600; font-size: 12px;">${dept}</div>
+                                    ${data.map((d, i) => {
+                                        const color = d.avg >= 4 ? '#28a745' : d.avg >= 3 ? '#ffc107' : '#dc3545';
+                                        return `<div style="padding: 10px; background: white; border-radius: 4px; text-align: center; font-weight: 700; color: ${color};">${d.avg.toFixed(1)}</div>`;
+                                    }).join('')}
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
                 </div>
 
-                <div class="insight-box">
-                    <div class="insight-title">部署間ズレの分析</div>
-                    <div class="insight-text">
+                <div class="insight-box" style="background: #f0f0f0; border-left: 4px solid #555; padding: 15px; border-radius: 4px;">
+                    <div class="insight-title" style="color: #333; margin-bottom: 8px;">部署間ズレの分析</div>
+                    <div class="insight-text" style="color: #333; font-size: 13px; line-height: 1.6;">
                         • 部署間で1.5点以上の差がある設問は、部署間での理解ギャップがある可能性<br>
                         • 特に営業部とマーケティング部・企画部の差が大きい場合は、現場と企画層の乖離を示唆
                     </div>
@@ -2586,7 +2536,21 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
         function downloadReportPDF() {
             const companyObj = companies.find(c => c.id === currentCompanyId);
             const company = companyObj ? companyObj.name : currentCompanyId;
-            const element = document.getElementById('slideContent');
+            const container = document.createElement('div');
+
+            // 全スライドをコンテナに追加
+            allSlides.forEach(slide => {
+                const slideDiv = document.createElement('div');
+                slideDiv.style.pageBreakAfter = 'always';
+                slideDiv.innerHTML = `
+                    <div class="slide-content">
+                        <div class="slide-title">${slide.title}</div>
+                        ${slide.html}
+                    </div>
+                `;
+                container.appendChild(slideDiv);
+            });
+
             const opt = {
                 margin: 10,
                 filename: `${company}_report_${new Date().toISOString().split('T')[0]}.pdf`,
@@ -2594,7 +2558,7 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
                 html2canvas: { scale: 2 },
                 jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
             };
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(container).save();
         }
 
         function downloadReportSlides() {
@@ -2628,34 +2592,44 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
         // Google Slides エクスポート
         // ========================================
         function exportToGoogleSlides() {
-            const company = companies.find(c => c.id === currentCompanyId).name;
-            const respondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+            const companyObj = companies.find(c => c.id === currentCompanyId);
+            const company = companyObj ? companyObj.name : currentCompanyId;
 
-            // Google Slides形式でのJSON構造を作成
-            const slidesData = allSlides.map((slide, idx) => {
-                return {
-                    title: slide.title,
-                    index: idx + 1,
-                    content: slide.html
-                };
-            });
+            // 処理中のメッセージを表示
+            alert('Google Slides を作成中です。少々お待ちください...');
 
-            // JSONをダウンロード（後でGoogle SlidesのAPIで使用可能）
-            const dataStr = JSON.stringify({
+            // Apps Script にデータを送信
+            const deploymentId = 'AKfycbz2uldiHjuCbTl1OYJFO2_RgaOFlOMUtTSfCk5_zLOtKgMQEXK5dm-iGIS4QLxibJOv';
+            const appsScriptUrl = `https://script.google.com/macros/d/${deploymentId}/usercontent`;
+
+            // 送信データを準備
+            const dataToSend = {
                 company: company,
-                createdAt: new Date().toISOString(),
-                respondentCount: respondents.length,
-                slides: slidesData
-            }, null, 2);
+                slides: allSlides
+            };
 
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${company}_slides_data_${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-
-            alert('スライドデータ（JSON形式）をダウンロードしました。このファイルはGoogle Slides APIで処理可能です。');
+            // Apps Script に POST リクエスト
+            fetch(appsScriptUrl, {
+                method: 'POST',
+                body: JSON.stringify(dataToSend),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Google Slides のリンクを新しいウィンドウで開く
+                    alert('✅ Google Slides が作成されました！\n\n新しいウィンドウが開きます。');
+                    window.open(result.presentationUrl, '_blank');
+                } else {
+                    alert('❌ エラーが発生しました：\n' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ 通信エラーが発生しました：\n' + error.toString());
+                console.error('Error:', error);
+            });
         }
 
         // ========================================
