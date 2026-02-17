@@ -26,6 +26,11 @@
         body {
             display: flex;
             flex-direction: column;
+            visibility: hidden;
+        }
+
+        body.ready {
+            visibility: visible;
         }
 
         .container {
@@ -58,7 +63,7 @@
         .add-company-btn {
             width: 100%;
             padding: 10px;
-            background-color: #ff6b6b;
+            background: linear-gradient(135deg, #0d1b5c 0%, #1f4788 100%);
             color: white;
             border: none;
             border-radius: 4px;
@@ -66,11 +71,14 @@
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 15px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(15, 27, 92, 0.3);
         }
 
         .add-company-btn:hover {
-            background-color: #ff5252;
+            background: linear-gradient(135deg, #1a2a7e 0%, #2d5aa4 100%);
+            box-shadow: 0 4px 12px rgba(15, 27, 92, 0.4);
+            transform: translateY(-2px);
         }
 
         .company-item {
@@ -600,7 +608,7 @@
         }
     </style>
 </head>
-<body>
+<body class="ready">
     <div class="container">
         <!-- LEFT SIDEBAR -->
         <div class="sidebar">
@@ -632,14 +640,14 @@
 
             <!-- TABS -->
             <div class="content-tabs">
-                <button class="tab active" onclick="switchTab(&#39;respondents&#39;)">回答者管理</button>
+                <button class="tab" onclick="switchTab(&#39;respondents&#39;)">回答者管理</button>
                 <button class="tab" onclick="switchTab(&#39;questions&#39;)">質問管理</button>
                 <button class="tab" onclick="switchTab(&#39;distribution&#39;)">配布管理</button>
-                <button class="tab" onclick="switchTab(&#39;report&#39;)">レポート</button>
+                <button class="tab active" onclick="switchTab(&#39;report&#39;)">レポート</button>
             </div>
 
             <!-- TAB: RESPONDENTS -->
-            <div id="respondents" class="tab-content active">
+            <div id="respondents" class="tab-content">
                 <div class="section">
                     <div class="section-title">アンケート配布</div>
                     <div class="form-group">
@@ -1668,21 +1676,92 @@
             </div>
 
             <!-- TAB: REPORT -->
-            <div id="report" class="tab-content">
+            <div id="report" class="tab-content active">
                 <div class="slide-controls">
                     <button class="btn btn-secondary btn-sm" onclick="previousSlide()">← 前へ</button>
                     <span class="slide-info">
-                        <span id="slideCounter">1</span> / <span id="slideTotal">1</span>
+                        <span id="slideCounter">7</span> / <span id="slideTotal">13</span>
                     </span>
                     <button class="btn btn-secondary btn-sm" onclick="nextSlide()">次へ →</button>
                     <button class="btn btn-primary btn-sm" onclick="downloadReportPDF()" style="margin-left: auto; margin-right: 10px;">PDFダウンロード</button>
-                    <button class="btn btn-success btn-sm" onclick="exportToGoogleSlides()" style="margin-left: 10px;">Googleスライド作成</button>
                 </div>
 
                 <div class="slide-viewer">
                     <div class="slide-content" id="slideContent">
-                        <p>レポートを生成してください</p>
+                <div class="slide-title">Q5詳細分析: 当社サービスの「向いていないケース」や「弱み・課題」を説明で...</div>
+                
+                <div class="slide-section">
+                    <div class="slide-subtitle">当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                    <div class="stat-box">
+                        <div class="stat-item">
+                            <div class="stat-label">平均スコア</div>
+                            <div class="stat-value">2.8</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">回答数</div>
+                            <div class="stat-value">18</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="slide-section">
+                    <div class="slide-subtitle">回答分布</div>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px;">
+                        
+                            <div style="text-align: center; padding: 10px; background-color: #f0f8ff; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #1f4788;">⑤1</div>
+                                <div style="font-size: 18px; font-weight: 700;">1</div>
+                                <div style="font-size: 11px; color: #666;">6%</div>
+                            </div>
+                        
+                            <div style="text-align: center; padding: 10px; background-color: #f0f8ff; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #1f4788;">⑤2</div>
+                                <div style="font-size: 18px; font-weight: 700;">6</div>
+                                <div style="font-size: 11px; color: #666;">33%</div>
+                            </div>
+                        
+                            <div style="text-align: center; padding: 10px; background-color: #f0f8ff; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #1f4788;">⑤3</div>
+                                <div style="font-size: 18px; font-weight: 700;">8</div>
+                                <div style="font-size: 11px; color: #666;">44%</div>
+                            </div>
+                        
+                            <div style="text-align: center; padding: 10px; background-color: #f0f8ff; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #1f4788;">⑤4</div>
+                                <div style="font-size: 18px; font-weight: 700;">2</div>
+                                <div style="font-size: 11px; color: #666;">11%</div>
+                            </div>
+                        
+                            <div style="text-align: center; padding: 10px; background-color: #f0f8ff; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #1f4788;">⑤5</div>
+                                <div style="font-size: 18px; font-weight: 700;">1</div>
+                                <div style="font-size: 11px; color: #666;">6%</div>
+                            </div>
+                        
+                    </div>
+                </div>
+
+                <div class="slide-section">
+                    <div class="slide-subtitle">代表回答例</div>
+                    
+                <div style="margin-bottom: 10px; padding: 8px; background-color: white; border-left: 3px solid #ff6b6b;">
+                    <strong>田中太郎</strong> (スコア: 3)<br>
+                    「大企業向けにはカスタマイズが必要な場合がある」
+                </div>
+            
+                <div style="margin-bottom: 10px; padding: 8px; background-color: white; border-left: 3px solid #ff6b6b;">
+                    <strong>山田花子</strong> (スコア: 2)<br>
+                    「大規模データセットへの対応に課題がある」
+                </div>
+            
+                <div style="margin-bottom: 10px; padding: 8px; background-color: white; border-left: 3px solid #ff6b6b;">
+                    <strong>佐藤次郎</strong> (スコア: 4)<br>
+                    「スモールビジネスには高いのではないか」
+                </div>
+            
+                </div>
+            
+            </div>
                 </div>
             </div>
         </div>
@@ -1760,6 +1839,8 @@
             } else {
                 initializeAdmin();
             }
+            // ページ初期化完了後に表示
+            document.body.classList.add('ready');
         }
 
         function initializeAdmin() {
