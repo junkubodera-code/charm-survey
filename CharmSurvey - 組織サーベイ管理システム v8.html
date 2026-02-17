@@ -2614,14 +2614,8 @@
                         </div>
 
                         <div style="margin-bottom: 15px;">
-                            <label style="display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px;">部署 <span style="color: #ff6b6b;">*</span></label>
-                            <select id="respondentDepartment" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 14px;">
-                                <option value="">部署を選択してください</option>
-                                <option value="営業部">営業部</option>
-                                <option value="マーケティング部">マーケティング部</option>
-                                <option value="企画部">企画部</option>
-                                <option value="その他">その他</option>
-                            </select>
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px;">部署</label>
+                            <input type="text" id="respondentDepartment" placeholder="例：営業部" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 14px;">
                         </div>
 
                         <div style="margin-bottom: 15px;">
@@ -2690,8 +2684,8 @@
             const name = document.getElementById('respondentName').value.trim();
             const department = document.getElementById('respondentDepartment').value.trim();
 
-            if (!name || !department) {
-                alert('氏名と部署は必須項目です');
+            if (!name) {
+                alert('氏名は必須項目です');
                 return;
             }
 
