@@ -608,19 +608,12 @@
             </div>
 
             <div class="sidebar-section">
-                <div class="sidebar-title">ドメイン設定</div>
-                <div class="form-group">
-                    <input type="text" id="domainInput" placeholder="https://example.com" style="font-size: 12px;">
-                </div>
-                <button class="btn btn-primary btn-sm" onclick="saveDomainSetting()" style="width: 100%;">保存</button>
-            </div>
-
-            <div class="sidebar-section">
                 <div class="sidebar-title">企業管理</div>
                 <button class="add-company-btn" onclick="showAddCompanyDialog()">+ 新規企業追加</button>
                 <div id="companyList">
-                <div class="company-item active" onclick="selectCompany(&#39;sample-corp&#39;)">
-                    サンプル株式会社
+                <div class="company-item active" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span onclick="selectCompany(&#39;sample-corp&#39;)" style="flex: 1; cursor: pointer;">サンプル株式会社</span>
+                    <button class="btn btn-sm" onclick="deleteCompany(&#39;sample-corp&#39;)" style="background-color: #dc3545; color: white; padding: 4px 8px; font-size: 11px; margin-left: 8px;">削除</button>
                 </div>
             </div>
             </div>
@@ -650,14 +643,10 @@
                     <div class="section-title">アンケート配布</div>
                     <div class="form-group">
                         <label>回答者専用リンク</label>
-                        <div class="link-display" id="surveyLink">リンクを生成してください</div>
+                        <div class="link-display" id="surveyLink">https://charm-survey-production.up.railway.app/?mode=survey&amp;company=sample-corp&amp;linkId=link-1771292396385</div>
                         <button class="btn btn-primary btn-sm" onclick="generateSurveyLink()" style="margin-right: 10px;">リンク生成</button>
                         <button class="btn btn-secondary btn-sm" onclick="copySurveyLink()">コピー</button>
                         <button class="btn btn-secondary btn-sm" onclick="previewSurvey()">プレビュー</button>
-                    </div>
-                    <div class="form-group">
-                        <label>QR コード</label>
-                        <div id="qrCode" class="qr-container"></div>
                     </div>
                 </div>
 
@@ -1492,7 +1481,47 @@
             <div id="questions" class="tab-content">
                 <div class="section">
                     <div class="section-title">設問管理</div>
-                    <div id="questionsList"></div>
+                    <div id="questionsList">
+                <div class="question-block" id="question-block-0">
+                    <div class="question-label">Q1: 当社のサービス／事業を一言で表すと？</div>
+                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
+                        記述：20〜30文字 | 上記の回答はどれくらい自信を持って言えますか？
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(0)">編集</button>
+                </div>
+            
+                <div class="question-block" id="question-block-1">
+                    <div class="question-label">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
+                        記述：300文字以内 | 上記の説明にどれくらい自信がありますか？
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(1)">編集</button>
+                </div>
+            
+                <div class="question-block" id="question-block-2">
+                    <div class="question-label">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
+                        記述：300文字以内（理由） | 言葉や表現の共通度
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(2)">編集</button>
+                </div>
+            
+                <div class="question-block" id="question-block-3">
+                    <div class="question-label">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
+                        記述：300文字以内 | 事例の具体性・量
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(3)">編集</button>
+                </div>
+            
+                <div class="question-block" id="question-block-4">
+                    <div class="question-label">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
+                        記述：300文字以内 | 説明の明確さ
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(4)">編集</button>
+                </div>
+            </div>
                 </div>
             </div>
 
@@ -1512,13 +1541,19 @@
                                 <th>配布URL</th>
                                 <th>状態</th>
                                 <th>回答数</th>
+                                <th>備考</th>
                                 <th>アクション</th>
                             </tr>
                         </thead>
                         <tbody id="distributionTable">
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #999;">
-                            URLを生成してから配布してください
+                        <td>2026/2/17 10:39:56</td>
+                        <td><span class="link-display" style="margin: 0;">https://charm-survey-production.up.railway.app/?mode=survey&amp;company=sample-corp&amp;linkId=link-1771292396385</span></td>
+                        <td><span class="status-badge status-active">配布中</span></td>
+                        <td>0名</td>
+                        <td><input type="text" value="" onchange="updateLinkMemo(&#39;link-1771292396385&#39;, this.value)" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;"></td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="copyLink(&#39;https://charm-survey-production.up.railway.app/?mode=survey&amp;company=sample-corp&amp;linkId=link-1771292396385&#39;)">コピー</button>
                         </td>
                     </tr>
                 </tbody>
@@ -1537,7 +1572,15 @@
                                 <th>回答率</th>
                             </tr>
                         </thead>
-                        <tbody id="historyTable"></tbody>
+                        <tbody id="historyTable">
+                    <tr>
+                        <td>link-1771292396385</td>
+                        <td>2026/2/17 10:39:56</td>
+                        <td><span class="status-badge status-active">配布中</span></td>
+                        <td>0名</td>
+                        <td>0.0%</td>
+                    </tr>
+                </tbody>
                     </table>
                 </div>
             </div>
@@ -1547,7 +1590,7 @@
                 <div class="slide-controls">
                     <button class="btn btn-secondary btn-sm" onclick="previousSlide()">← 前へ</button>
                     <span class="slide-info">
-                        <span id="slideCounter">1</span> / <span id="slideTotal">1</span>
+                        <span id="slideCounter">1</span> / <span id="slideTotal">13</span>
                     </span>
                     <button class="btn btn-secondary btn-sm" onclick="nextSlide()">次へ →</button>
                     <button class="btn btn-primary btn-sm" onclick="downloadReportPDF()" style="margin-left: auto; margin-right: 10px;">PDFダウンロード</button>
@@ -1557,8 +1600,64 @@
 
                 <div class="slide-viewer">
                     <div class="slide-content" id="slideContent">
-                        <p>レポートを生成してください</p>
+                <div class="slide-title">エグゼクティブサマリー</div>
+                
+                <div class="slide-section">
+                    <div class="stat-box">
+                        <div class="stat-item">
+                            <div class="stat-label">企業名</div>
+                            <div class="stat-value" style="font-size: 16px;">サンプル株式会社</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">回答者数</div>
+                            <div class="stat-value">18名</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">調査日</div>
+                            <div class="stat-value" style="font-size: 14px;">2026/2/17</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="slide-section">
+                    <div class="slide-subtitle">全体スコア（5点満点）</div>
+                    <div class="stat-box">
+                        
+                            <div class="stat-item">
+                                <div class="stat-label">Q1</div>
+                                <div class="stat-value">3.4</div>
+                            </div>
+                        
+                            <div class="stat-item">
+                                <div class="stat-label">Q2</div>
+                                <div class="stat-value">3.4</div>
+                            </div>
+                        
+                            <div class="stat-item">
+                                <div class="stat-label">Q3</div>
+                                <div class="stat-value">2.7</div>
+                            </div>
+                        
+                            <div class="stat-item">
+                                <div class="stat-label">Q4</div>
+                                <div class="stat-value">3.2</div>
+                            </div>
+                        
+                            <div class="stat-item">
+                                <div class="stat-label">Q5</div>
+                                <div class="stat-value">2.8</div>
+                            </div>
+                        
+                    </div>
+                </div>
+
+                <div class="insight-box">
+                    <div class="insight-title">戦略ズレの診断</div>
+                    <div class="insight-text">組織内にズレが見られます：
+Q3, Q4 で回答が分散。定義や理解が統一されていない可能性があります。</div>
+                </div>
+            
+            </div>
                 </div>
             </div>
         </div>
@@ -1639,7 +1738,6 @@
         }
 
         function initializeAdmin() {
-            loadDomain();
             initializeCompanies();
             selectCompany('sample-corp');
             addSampleData();
@@ -1662,10 +1760,27 @@
         function renderCompanyList() {
             const list = document.getElementById('companyList');
             list.innerHTML = companies.map(c => `
-                <div class="company-item ${c.id === currentCompanyId ? 'active' : ''}" onclick="selectCompany('${c.id}')">
-                    ${c.name}
+                <div class="company-item ${c.id === currentCompanyId ? 'active' : ''}" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span onclick="selectCompany('${c.id}')" style="flex: 1; cursor: pointer;">${c.name}</span>
+                    <button class="btn btn-sm" onclick="deleteCompany('${c.id}')" style="background-color: #dc3545; color: white; padding: 4px 8px; font-size: 11px; margin-left: 8px;">削除</button>
                 </div>
             `).join('');
+        }
+
+        function deleteCompany(companyId) {
+            if (confirm(`「${companies.find(c => c.id === companyId).name}」を削除してもよろしいですか？`)) {
+                companies = companies.filter(c => c.id !== companyId);
+                localStorage.setItem('companies', JSON.stringify(companies));
+                if (currentCompanyId === companyId && companies.length > 0) {
+                    selectCompany(companies[0].id);
+                } else if (companies.length === 0) {
+                    currentCompanyId = 'sample-corp';
+                    companies = [{ id: 'sample-corp', name: 'サンプル株式会社' }];
+                    localStorage.setItem('companies', JSON.stringify(companies));
+                    selectCompany('sample-corp');
+                }
+                renderCompanyList();
+            }
         }
 
         function selectCompany(companyId) {
@@ -1678,22 +1793,6 @@
         }
 
         // ========================================
-        // ドメイン設定
-        // ========================================
-        function loadDomain() {
-            const stored = localStorage.getItem('domainSetting');
-            if (stored) {
-                baseDomain = stored;
-                document.getElementById('domainInput').value = baseDomain;
-            }
-        }
-
-        function saveDomainSetting() {
-            baseDomain = document.getElementById('domainInput').value || baseDomain;
-            localStorage.setItem('domainSetting', baseDomain);
-            alert('ドメイン設定を保存しました');
-        }
-
         // ========================================
         // 企業追加
         // ========================================
@@ -1790,10 +1889,17 @@
         function startEditQuestion(idx) {
             const q = surveyQuestions[idx];
             const block = document.getElementById(`question-block-${idx}`);
+            const optionsHtml = q.ratingOptions.map((opt, i) => `
+                <input type="text" id="edit-opt-${idx}-${i}" value="${opt}" style="width: 100%; padding: 8px; margin-bottom: 6px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 12px;">
+            `).join('');
             block.innerHTML = `
                 <div class="form-group">
                     <label>質問テキスト</label>
                     <textarea id="edit-q-${idx}" class="inline-edit-textarea">${q.title}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>選択肢</label>
+                    ${optionsHtml}
                 </div>
                 <div class="inline-edit-buttons">
                     <button class="btn btn-success btn-sm" onclick="saveEditQuestion(${idx})">保存</button>
@@ -1804,12 +1910,26 @@
 
         function saveEditQuestion(idx) {
             const newTitle = document.getElementById(`edit-q-${idx}`).value.trim();
-            if (newTitle) {
-                surveyQuestions[idx].title = newTitle;
-                localStorage.setItem('surveyQuestions', JSON.stringify(surveyQuestions));
-                displayQuestions();
-                alert('質問を保存しました');
+            const q = surveyQuestions[idx];
+
+            if (!newTitle) {
+                alert('質問テキストは必須です');
+                return;
             }
+
+            surveyQuestions[idx].title = newTitle;
+
+            // Update rating options
+            const newOptions = [];
+            for (let i = 0; i < q.ratingOptions.length; i++) {
+                const optValue = document.getElementById(`edit-opt-${idx}-${i}`).value.trim();
+                newOptions.push(optValue || `選択肢${i + 1}`);
+            }
+            surveyQuestions[idx].ratingOptions = newOptions;
+
+            localStorage.setItem('surveyQuestions', JSON.stringify(surveyQuestions));
+            displayQuestions();
+            alert('質問を保存しました');
         }
 
         function cancelEditQuestion(idx) {
@@ -1833,7 +1953,7 @@
             if (surveyLinks.length === 0) {
                 document.getElementById('distributionTable').innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #999;">
+                        <td colspan="6" style="text-align: center; color: #999;">
                             URLを生成してから配布してください
                         </td>
                     </tr>
@@ -1844,12 +1964,14 @@
 
             const tableHtml = surveyLinks.map((link, idx) => {
                 const respondentCount = surveyResponses.filter(r => r.surveyLinkId === link.id).length;
+                const memo = link.memo || '';
                 return `
                     <tr>
                         <td>${link.createdAt}</td>
                         <td><span class="link-display" style="margin: 0;">${link.url}</span></td>
                         <td><span class="status-badge status-${link.status}">${link.status === 'active' ? '配布中' : '保留中'}</span></td>
                         <td>${respondentCount}名</td>
+                        <td><input type="text" value="${memo}" onchange="updateLinkMemo('${link.id}', this.value)" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;"></td>
                         <td>
                             <button class="btn btn-secondary btn-sm" onclick="copyLink('${link.url}')">コピー</button>
                         </td>
@@ -1882,6 +2004,14 @@
             });
         }
 
+        function updateLinkMemo(linkId, memoText) {
+            const link = surveyLinks.find(l => l.id === linkId);
+            if (link) {
+                link.memo = memoText;
+                saveSurveyLinks();
+            }
+        }
+
         // ========================================
         // サーベイリンク＆QRコード
         // ========================================
@@ -1899,16 +2029,6 @@
             saveSurveyLinks();
 
             document.getElementById('surveyLink').textContent = link;
-
-            // QRコード生成
-            document.getElementById('qrCode').innerHTML = '';
-            new QRCode(document.getElementById('qrCode'), {
-                text: link,
-                width: 200,
-                height: 200,
-                colorDark: '#1f4788',
-                colorLight: '#ffffff'
-            });
 
             loadDistributionTable();
         }
