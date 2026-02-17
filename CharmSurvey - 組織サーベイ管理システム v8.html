@@ -1,0 +1,2775 @@
+<!DOCTYPE html>
+<!-- saved from url=(0245)file:///Users/junkubodera/Library/Application%20Support/Claude/local-agent-mode-sessions/db81965c-ca9c-4d30-afc8-5cd4181cae5d/8714616e-6bc5-4f48-ac54-33712040b8bb/local_b82112cd-2b71-49e8-9eb8-ea441a704962/outputs/charm_survey_v8_production.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CharmSurvey - 組織サーベイ管理システム v8</title>
+    <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/html2canvas.min.js"></script>
+    <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/html2pdf.bundle.min.js"></script>
+    <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/chart.min.js"></script>
+    <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/qrcode.min.js"></script>
+    <script src="./CharmSurvey - 組織サーベイ管理システム v8_files/api.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1f4788 0%, #2d5aa4 100%);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .add-company-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .add-company-btn:hover {
+            background-color: #ff5252;
+        }
+
+        .company-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .company-item:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .company-item.active {
+            background-color: rgba(255,255,255,0.3);
+            border-left-color: #ff6b6b;
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 8px 0 0 0;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1f4788 0%, #2d5aa4 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .content-tabs {
+            display: flex;
+            border-bottom: 2px solid #e8e8e8;
+            padding: 0 20px;
+            background-color: #fafafa;
+        }
+
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            color: #1f4788;
+        }
+
+        .tab.active {
+            color: #1f4788;
+            border-bottom-color: #ff6b6b;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f4788;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #1f4788;
+            box-shadow: 0 0 0 3px rgba(31, 71, 136, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #1f4788;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #16365f;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .link-display {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            word-break: break-all;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+
+        .qr-container {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .question-block {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #1f4788;
+        }
+
+        .question-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .respondent-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .respondent-row:hover {
+            background-color: #f0f8ff;
+        }
+
+        .respondent-details {
+            display: none;
+        }
+
+        .respondent-details.open {
+            display: table-row;
+        }
+
+        .respondent-answers {
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .answer-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .answer-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .answer-question {
+            font-weight: 600;
+            color: #1f4788;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .answer-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            padding: 8px;
+            background-color: white;
+            border-left: 3px solid #ff6b6b;
+            margin-bottom: 5px;
+        }
+
+        .answer-rating {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .slide-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .slide-info {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .slide-viewer {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            min-height: 600px;
+            margin-bottom: 20px;
+        }
+
+        .slide-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .slide-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f4788;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ff6b6b;
+            padding-bottom: 15px;
+        }
+
+        .slide-section {
+            margin-bottom: 15px;
+        }
+
+        .slide-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .stat-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #1f4788;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f4788;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .comparison-table th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+        }
+
+        .comparison-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            background-color: #f9f9f9;
+        }
+
+        .insight-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .insight-text {
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.5;
+        }
+
+        .action-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .action-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #f0f8ff;
+            border-left: 3px solid #1f4788;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .respondent-toggle-icon {
+            display: inline-block;
+            margin-left: 8px;
+            color: #1f4788;
+            font-weight: bold;
+        }
+
+        .inline-edit-textarea {
+            width: 100%;
+            min-height: 100px;
+            font-family: inherit;
+            padding: 10px;
+            border: 2px solid #1f4788;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .inline-edit-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .distribution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .url-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .url-card-title {
+            font-weight: 600;
+            color: #1f4788;
+            margin-bottom: 10px;
+        }
+
+        .url-card-content {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        @media print {
+            .slide-controls {
+                display: none;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .container {
+                height: auto;
+            }
+
+            .slide-viewer {
+                page-break-after: always;
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div style="font-size: 20px; font-weight: 700; margin-bottom: 10px;">🎯 CharmSurvey v8</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">ドメイン設定</div>
+                <div class="form-group">
+                    <input type="text" id="domainInput" placeholder="https://example.com" style="font-size: 12px;">
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="saveDomainSetting()" style="width: 100%;">保存</button>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">企業管理</div>
+                <button class="add-company-btn" onclick="showAddCompanyDialog()">+ 新規企業追加</button>
+                <div id="companyList">
+                <div class="company-item active" onclick="selectCompany(&#39;sample-corp&#39;)">
+                    サンプル株式会社
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <div>
+                    <div class="header-title" id="companyName">サンプル株式会社</div>
+                    <div class="header-subtitle" id="responseCount">18名の回答者</div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="content-tabs">
+                <button class="tab active" onclick="switchTab(&#39;respondents&#39;)">回答者管理</button>
+                <button class="tab" onclick="switchTab(&#39;questions&#39;)">質問管理</button>
+                <button class="tab" onclick="switchTab(&#39;distribution&#39;)">配布管理</button>
+                <button class="tab" onclick="switchTab(&#39;report&#39;)">レポート</button>
+            </div>
+
+            <!-- TAB: RESPONDENTS -->
+            <div id="respondents" class="tab-content active">
+                <div class="section">
+                    <div class="section-title">アンケート配布</div>
+                    <div class="form-group">
+                        <label>回答者専用リンク</label>
+                        <div class="link-display" id="surveyLink">リンクを生成してください</div>
+                        <button class="btn btn-primary btn-sm" onclick="generateSurveyLink()" style="margin-right: 10px;">リンク生成</button>
+                        <button class="btn btn-secondary btn-sm" onclick="copySurveyLink()">コピー</button>
+                        <button class="btn btn-secondary btn-sm" onclick="previewSurvey()">プレビュー</button>
+                    </div>
+                    <div class="form-group">
+                        <label>QR コード</label>
+                        <div id="qrCode" class="qr-container"></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">回答者一覧</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>氏名</th>
+                                <th>部署</th>
+                                <th>役職</th>
+                                <th>入社日</th>
+                                <th>回答内容</th>
+                            </tr>
+                        </thead>
+                        <tbody id="respondentTable">
+                <tr class="respondent-row" onclick="toggleRespondentDetails(0)">
+                    <td>田中太郎 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>営業部</td>
+                    <td>営業課長</td>
+                    <td>2020-01-15</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-0">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">クラウドベースのサーベイプラットフォーム</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">顧客データ分析の精度が他社比較で優れている</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">社内でも「データ分析ツール」とよく言われている</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">金融機関がデータドリブン経営に転換した事例がある</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">大企業向けにはカスタマイズが必要な場合がある</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(1)">
+                    <td>山田花子 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>営業部</td>
+                    <td>営業部長</td>
+                    <td>2019-03-20</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-1">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">データ分析ツール</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">使いやすいインターフェースと導入の容易さが差別化要因</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">「簡単に使える」という評判が多い</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">複数の顧客が売上改善に繋がった</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">大規模データセットへの対応に課題がある</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(2)">
+                    <td>佐藤次郎 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>営業部</td>
+                    <td>営業主任</td>
+                    <td>2021-07-10</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-2">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">サーベイツール</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">導入に手間がかかるが、導入後の効果が大きい</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">人によって言い方がばらばらな気がする</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">いくつか事例は知っているが詳しくない</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">スモールビジネスには高いのではないか</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(3)">
+                    <td>鈴木太郎 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>営業部</td>
+                    <td>営業アシスタント</td>
+                    <td>2022-04-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-3">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">組織のサーベイソリューション</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">よく分からない部分が多い</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">あまり共通の言葉を使っていないような気がする</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">具体的な事例を知らない</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">弱みについて考えたことがない</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(4)">
+                    <td>伊藤健太 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>営業部</td>
+                    <td>営業</td>
+                    <td>2022-06-15</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-4">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">クラウドサーベイシステム</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">実装の速さと良いサポート</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">割と「速い」という言葉がよく出ている</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">いくつか良い事例がある</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">カスタマイズがやや限定的</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(5)">
+                    <td>水野美咲 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>営業部</td>
+                    <td>営業</td>
+                    <td>2023-01-10</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-5">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">データ活用プラットフォーム</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">統合型のアプローチが強み</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">定義がやや曖昧</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">変化を見た顧客がいるはず</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">UIの改善余地がある</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(6)">
+                    <td>森田彩子 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>マーケティング部</td>
+                    <td>マーケティング部長</td>
+                    <td>2018-05-10</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-6">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">オーガナイゼーション最適化プラットフォーム</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">AIベースの分析と組織開発の融合が差別化</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">社内では「組織改革ツール」と統一されている</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">顧客の組織改革に大きく貢献した複数事例がある</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">導入前後の文化的抵抗への対応が課題</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(7)">
+                    <td>中村ゆり <span class="respondent-toggle-icon">▼</span></td>
+                    <td>マーケティング部</td>
+                    <td>マーケティング課長</td>
+                    <td>2019-08-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-7">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">組織改善ソリューション</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">ホリスティックなアプローチと継続的サポート</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">マーケティングチーム内でも「改善ツール」で統一</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">大手企業からのポジティブフィードバックが多い</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">小規模組織での ROI が不明瞭な場合がある</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(8)">
+                    <td>田所拓也 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>マーケティング部</td>
+                    <td>マーケティング課長</td>
+                    <td>2020-02-15</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-8">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">エンプロイヤーエクスペリエンスプラットフォーム</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">EX 重視のコンセプトと継続サポート</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">チーム内でも意識は高いが言葉の定義は曖昧</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">いくつか成功事例を見ている</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">グローバル展開時の地域差への対応</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(9)">
+                    <td>岡本美優 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>マーケティング部</td>
+                    <td>マーケティングスペシャリスト</td>
+                    <td>2021-09-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-9">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">人事向けサーベイツール</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">安価さと導入の簡単さ</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">よく分からないという人も多い</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">聞いたことがあるような気がするが詳しくない</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">フィードバックループが十分でない可能性</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(10)">
+                    <td>高橋健一 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>マーケティング部</td>
+                    <td>マーケティング</td>
+                    <td>2022-04-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-10">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">サーベイ・分析ツール</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">ぶっちゃけよく分からない</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">バラバラ</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">聞いたことない</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">ほぼ全部</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(11)">
+                    <td>坂口有希 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>マーケティング部</td>
+                    <td>マーケティング</td>
+                    <td>2023-03-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-11">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">アナリティクスソリューション</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">ダッシュボード機能が分かりやすい</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">定義が揃いきっていない部分がある</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">いくつか導入事例を聞いている</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">プリセットレポートが限定的</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(12)">
+                    <td>鈴木花子 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>企画部</td>
+                    <td>企画部長</td>
+                    <td>2017-12-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-12">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">戦略的組織開発プラットフォーム</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">経営戦略との連動性と長期的成長支援が差別化</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">経営層でも「戦略ツール」として認識されている</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">企業文化の変革に成功した複数事例がある</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">変革期間の不確実性対応が課題</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(13)">
+                    <td>村田佳子 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>企画部</td>
+                    <td>企画課長</td>
+                    <td>2019-07-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-13">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">組織診断ソリューション</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">診断精度と実装支援の連携</div>
+                                        <div class="answer-rating">スコア: 5</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">企画チーム内でも「診断ツール」で統一</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">いくつかの企業が変わったのを見ている</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">実装後のモニタリング機能が不十分</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(14)">
+                    <td>林田太一 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>企画部</td>
+                    <td>企画課長</td>
+                    <td>2020-06-10</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-14">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">パルスサーベイプラットフォーム</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">リアルタイム性が売り</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">チーム内でも意見が分かれている</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">いくつか成功事例がある</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">データセキュリティ対応が業界基準を満たすかどうか</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(15)">
+                    <td>吉田恵美 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>企画部</td>
+                    <td>企画員</td>
+                    <td>2022-01-15</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-15">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">社員エンゲージメント測定ツール</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">よく知らない部分がある</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">あいまいな説明が多い気がする</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">はっきりした成功事例を見ていない</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">セキュリティ面での心配がある</div>
+                                        <div class="answer-rating">スコア: 4</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(16)">
+                    <td>塚本武志 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>企画部</td>
+                    <td>企画員</td>
+                    <td>2022-08-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-16">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">エンゲージメント測定ツール</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">シンプルで分かりやすいと思う</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">もう少し定義を揃える必要がある</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">いくつか話を聞いている</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">グローバル対応がまだ不十分</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr class="respondent-row" onclick="toggleRespondentDetails(17)">
+                    <td>原田優子 <span class="respondent-toggle-icon">▼</span></td>
+                    <td>企画部</td>
+                    <td>企画員</td>
+                    <td>2023-02-01</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-17">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q1: 当社のサービス／事業を一言で表すと？</div>
+                                        <div class="answer-text">人材組織サーベイ</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
+                                        <div class="answer-text">はっきり分からない</div>
+                                        <div class="answer-rating">スコア: 2</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
+                                        <div class="answer-text">説明にばらつきを感じる</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
+                                        <div class="answer-text">事例をあまり知らない</div>
+                                        <div class="answer-rating">スコア: 1</div>
+                                    </div>
+                                
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
+                                        <div class="answer-text">UI/UX に改善の余地がある</div>
+                                        <div class="answer-rating">スコア: 3</div>
+                                    </div>
+                                
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: QUESTIONS -->
+            <div id="questions" class="tab-content">
+                <div class="section">
+                    <div class="section-title">設問管理</div>
+                    <div id="questionsList"></div>
+                </div>
+            </div>
+
+            <!-- TAB: DISTRIBUTION -->
+            <div id="distribution" class="tab-content">
+                <div class="section">
+                    <div class="section-title">配布URL管理</div>
+                    <div class="form-group">
+                        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                            このセクションでは、配布した回答URLの一覧と回答状況を確認できます。
+                        </p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>配布日時</th>
+                                <th>配布URL</th>
+                                <th>状態</th>
+                                <th>回答数</th>
+                                <th>アクション</th>
+                            </tr>
+                        </thead>
+                        <tbody id="distributionTable">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #999;">
+                            URLを生成してから配布してください
+                        </td>
+                    </tr>
+                </tbody>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">配布履歴</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>URL ID</th>
+                                <th>生成日時</th>
+                                <th>配布状態</th>
+                                <th>回答者数</th>
+                                <th>回答率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: REPORT -->
+            <div id="report" class="tab-content">
+                <div class="slide-controls">
+                    <button class="btn btn-secondary btn-sm" onclick="previousSlide()">← 前へ</button>
+                    <span class="slide-info">
+                        <span id="slideCounter">1</span> / <span id="slideTotal">1</span>
+                    </span>
+                    <button class="btn btn-secondary btn-sm" onclick="nextSlide()">次へ →</button>
+                    <button class="btn btn-primary btn-sm" onclick="downloadReportPDF()" style="margin-left: auto; margin-right: 10px;">PDFダウンロード</button>
+                    <button class="btn btn-primary btn-sm" onclick="downloadReportSlides()">スライドダウンロード</button>
+                    <button class="btn btn-success btn-sm" onclick="exportToGoogleSlides()" style="margin-left: 10px;">Googleスライド作成</button>
+                </div>
+
+                <div class="slide-viewer">
+                    <div class="slide-content" id="slideContent">
+                        <p>レポートを生成してください</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // グローバル状態
+        // ========================================
+        let baseDomain = 'https://charm-survey-production.up.railway.app';
+        let companies = [];
+        let currentCompanyId = 'sample-corp';
+        let isAdminMode = true;
+        let surveyResponses = [];
+        let currentQuestionIndex = 0;
+        let currentSlide = 1;
+        let allSlides = [];
+        let surveyLinks = [];
+
+        const surveyQuestions = [
+            {
+                id: 1,
+                title: "当社のサービス／事業を一言で表すと？",
+                textQuestion: "記述：20〜30文字",
+                textPlaceholder: "",
+                textMaxLength: 100,
+                ratingQuestion: "上記の回答はどれくらい自信を持って言えますか？",
+                ratingOptions: ["①全く言えない", "②あまり言えない", "③ある程度言える", "④かなり言える", "⑤明確に言える"]
+            },
+            {
+                id: 2,
+                title: "当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？",
+                textQuestion: "記述：300文字以内",
+                textPlaceholder: "",
+                textMaxLength: 300,
+                ratingQuestion: "上記の説明にどれくらい自信がありますか？",
+                ratingOptions: ["①全く説明できない", "②あまり説明できない", "③ある程度説明できる", "④かなり説明できる", "⑤強く自信を持って説明できる"]
+            },
+            {
+                id: 3,
+                title: "社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？",
+                textQuestion: "記述：300文字以内（理由）",
+                textPlaceholder: "",
+                textMaxLength: 300,
+                ratingQuestion: "言葉や表現の共通度",
+                ratingOptions: ["①全く揃っていない", "②あまり揃っていない", "③ある程度揃っている", "④ほぼ同じ言葉で語られている", "⑤非常に揃っている"]
+            },
+            {
+                id: 4,
+                title: "当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？",
+                textQuestion: "記述：300文字以内",
+                textPlaceholder: "",
+                textMaxLength: 300,
+                ratingQuestion: "事例の具体性・量",
+                ratingOptions: ["①全く思い浮かばない", "②あまり思い浮かばない", "③ある程度思い浮かぶ", "④複数思い浮かぶ", "⑤具体事例をもとに明確に思い浮かぶ"]
+            },
+            {
+                id: 5,
+                title: "当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？",
+                textQuestion: "記述：300文字以内",
+                textPlaceholder: "",
+                textMaxLength: 300,
+                ratingQuestion: "説明の明確さ",
+                ratingOptions: ["①全く説明できない", "②あまり説明できない", "③少し説明できる", "④ある程度説明できる", "⑤明確に説明できる"]
+            }
+        ];
+
+        // ========================================
+        // 初期化
+        // ========================================
+        function init() {
+            const mode = new URLSearchParams(window.location.search).get('mode');
+            if (mode === 'survey') {
+                initializeSurveyMode();
+            } else {
+                initializeAdmin();
+            }
+        }
+
+        function initializeAdmin() {
+            loadDomain();
+            initializeCompanies();
+            selectCompany('sample-corp');
+            addSampleData();
+            loadSurveyLinks();
+        }
+
+        function initializeCompanies() {
+            const stored = localStorage.getItem('companies');
+            if (stored) {
+                companies = JSON.parse(stored);
+            } else {
+                companies = [
+                    { id: 'sample-corp', name: 'サンプル株式会社' }
+                ];
+                localStorage.setItem('companies', JSON.stringify(companies));
+            }
+            renderCompanyList();
+        }
+
+        function renderCompanyList() {
+            const list = document.getElementById('companyList');
+            list.innerHTML = companies.map(c => `
+                <div class="company-item ${c.id === currentCompanyId ? 'active' : ''}" onclick="selectCompany('${c.id}')">
+                    ${c.name}
+                </div>
+            `).join('');
+        }
+
+        function selectCompany(companyId) {
+            currentCompanyId = companyId;
+            const company = companies.find(c => c.id === companyId);
+            document.getElementById('companyName').textContent = company.name;
+            renderCompanyList();
+            loadRespondents();
+            loadSurveyLinks();
+        }
+
+        // ========================================
+        // ドメイン設定
+        // ========================================
+        function loadDomain() {
+            const stored = localStorage.getItem('domainSetting');
+            if (stored) {
+                baseDomain = stored;
+                document.getElementById('domainInput').value = baseDomain;
+            }
+        }
+
+        function saveDomainSetting() {
+            baseDomain = document.getElementById('domainInput').value || baseDomain;
+            localStorage.setItem('domainSetting', baseDomain);
+            alert('ドメイン設定を保存しました');
+        }
+
+        // ========================================
+        // 企業追加
+        // ========================================
+        function showAddCompanyDialog() {
+            const name = prompt('企業名を入力してください');
+            if (name && name.trim()) {
+                const id = name.toLowerCase().replace(/\s+/g, '-');
+                companies.push({ id, name: name.trim() });
+                localStorage.setItem('companies', JSON.stringify(companies));
+                renderCompanyList();
+                selectCompany(id);
+            }
+        }
+
+        // ========================================
+        // タブ切り替え
+        // ========================================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'report') {
+                displayReport();
+            } else if (tabName === 'questions') {
+                displayQuestions();
+            } else if (tabName === 'distribution') {
+                loadDistributionTable();
+            }
+        }
+
+        // ========================================
+        // 回答者管理
+        // ========================================
+        function loadRespondents() {
+            const stored = localStorage.getItem(`respondents_${currentCompanyId}`);
+            surveyResponses = stored ? JSON.parse(stored) : [];
+            document.getElementById('responseCount').textContent = `${surveyResponses.length}名の回答者`;
+            renderRespondentTable();
+        }
+
+        function renderRespondentTable() {
+            const table = document.getElementById('respondentTable');
+            table.innerHTML = surveyResponses.map((r, idx) => `
+                <tr class="respondent-row" onclick="toggleRespondentDetails(${idx})">
+                    <td>${r.name} <span class="respondent-toggle-icon">▼</span></td>
+                    <td>${r.department}</td>
+                    <td>${r.position}</td>
+                    <td>${r.joinDate}</td>
+                    <td><a href="javascript:void(0)" onclick="event.stopPropagation()">表示</a></td>
+                </tr>
+                <tr class="respondent-details" id="details-${idx}">
+                    <td colspan="5">
+                        <div class="respondent-answers">
+                            ${r.answers.map((a, qIdx) => {
+                                const q = surveyQuestions[qIdx];
+                                return `
+                                    <div class="answer-item">
+                                        <div class="answer-question">Q${a.questionId}: ${q.title}</div>
+                                        <div class="answer-text">${a.text}</div>
+                                        <div class="answer-rating">スコア: ${a.rating}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleRespondentDetails(idx) {
+            const detailsRow = document.getElementById(`details-${idx}`);
+            detailsRow.classList.toggle('open');
+        }
+
+        // ========================================
+        // 質問管理
+        // ========================================
+        function displayQuestions() {
+            const list = document.getElementById('questionsList');
+            list.innerHTML = surveyQuestions.map((q, idx) => `
+                <div class="question-block" id="question-block-${idx}">
+                    <div class="question-label">Q${q.id}: ${q.title}</div>
+                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
+                        ${q.textQuestion} | ${q.ratingQuestion}
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(${idx})">編集</button>
+                </div>
+            `).join('');
+        }
+
+        function startEditQuestion(idx) {
+            const q = surveyQuestions[idx];
+            const block = document.getElementById(`question-block-${idx}`);
+            block.innerHTML = `
+                <div class="form-group">
+                    <label>質問テキスト</label>
+                    <textarea id="edit-q-${idx}" class="inline-edit-textarea">${q.title}</textarea>
+                </div>
+                <div class="inline-edit-buttons">
+                    <button class="btn btn-success btn-sm" onclick="saveEditQuestion(${idx})">保存</button>
+                    <button class="btn btn-secondary btn-sm" onclick="cancelEditQuestion(${idx})">キャンセル</button>
+                </div>
+            `;
+        }
+
+        function saveEditQuestion(idx) {
+            const newTitle = document.getElementById(`edit-q-${idx}`).value.trim();
+            if (newTitle) {
+                surveyQuestions[idx].title = newTitle;
+                localStorage.setItem('surveyQuestions', JSON.stringify(surveyQuestions));
+                displayQuestions();
+                alert('質問を保存しました');
+            }
+        }
+
+        function cancelEditQuestion(idx) {
+            displayQuestions();
+        }
+
+        // ========================================
+        // 配布管理
+        // ========================================
+        function loadSurveyLinks() {
+            const stored = localStorage.getItem(`surveyLinks_${currentCompanyId}`);
+            surveyLinks = stored ? JSON.parse(stored) : [];
+            loadDistributionTable();
+        }
+
+        function saveSurveyLinks() {
+            localStorage.setItem(`surveyLinks_${currentCompanyId}`, JSON.stringify(surveyLinks));
+        }
+
+        function loadDistributionTable() {
+            if (surveyLinks.length === 0) {
+                document.getElementById('distributionTable').innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #999;">
+                            URLを生成してから配布してください
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('historyTable').innerHTML = '';
+                return;
+            }
+
+            const tableHtml = surveyLinks.map((link, idx) => {
+                const respondentCount = surveyResponses.filter(r => r.surveyLinkId === link.id).length;
+                return `
+                    <tr>
+                        <td>${link.createdAt}</td>
+                        <td><span class="link-display" style="margin: 0;">${link.url}</span></td>
+                        <td><span class="status-badge status-${link.status}">${link.status === 'active' ? '配布中' : '保留中'}</span></td>
+                        <td>${respondentCount}名</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="copyLink('${link.url}')">コピー</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('distributionTable').innerHTML = tableHtml;
+
+            const historyHtml = surveyLinks.map((link, idx) => {
+                const respondentCount = surveyResponses.filter(r => r.surveyLinkId === link.id).length;
+                const responseRate = surveyResponses.length > 0 ? ((respondentCount / surveyResponses.length) * 100).toFixed(1) : '0';
+                return `
+                    <tr>
+                        <td>${link.id}</td>
+                        <td>${link.createdAt}</td>
+                        <td><span class="status-badge status-${link.status}">${link.status === 'active' ? '配布中' : '保留中'}</span></td>
+                        <td>${respondentCount}名</td>
+                        <td>${responseRate}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('historyTable').innerHTML = historyHtml;
+        }
+
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('リンクをコピーしました');
+            });
+        }
+
+        // ========================================
+        // サーベイリンク＆QRコード
+        // ========================================
+        function generateSurveyLink() {
+            const linkId = 'link-' + Date.now();
+            const link = `${baseDomain}/?mode=survey&company=${currentCompanyId}&linkId=${linkId}`;
+
+            // Save link info
+            surveyLinks.push({
+                id: linkId,
+                url: link,
+                createdAt: new Date().toLocaleString('ja-JP'),
+                status: 'active'
+            });
+            saveSurveyLinks();
+
+            document.getElementById('surveyLink').textContent = link;
+
+            // QRコード生成
+            document.getElementById('qrCode').innerHTML = '';
+            new QRCode(document.getElementById('qrCode'), {
+                text: link,
+                width: 200,
+                height: 200,
+                colorDark: '#1f4788',
+                colorLight: '#ffffff'
+            });
+
+            loadDistributionTable();
+        }
+
+        function copySurveyLink() {
+            const link = document.getElementById('surveyLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('リンクをコピーしました');
+            });
+        }
+
+        function previewSurvey() {
+            const link = document.getElementById('surveyLink').textContent;
+            if (link && !link.includes('リンクを生成')) {
+                window.open(link, '_blank');
+            }
+        }
+
+        // ========================================
+        // サンプルデータ（18人）
+        // ========================================
+        function addSampleData() {
+            const sampleRespondents = [
+                // 営業部（6人）
+                {name: '田中太郎', department: '営業部', position: '営業課長', joinDate: '2020-01-15', surveyLinkId: 'link-1', answers: [{questionId: 1, text: 'クラウドベースのサーベイプラットフォーム', rating: '5'}, {questionId: 2, text: '顧客データ分析の精度が他社比較で優れている', rating: '4'}, {questionId: 3, text: '社内でも「データ分析ツール」とよく言われている', rating: '5'}, {questionId: 4, text: '金融機関がデータドリブン経営に転換した事例がある', rating: '4'}, {questionId: 5, text: '大企業向けにはカスタマイズが必要な場合がある', rating: '3'}]},
+                {name: '山田花子', department: '営業部', position: '営業部長', joinDate: '2019-03-20', surveyLinkId: 'link-1', answers: [{questionId: 1, text: 'データ分析ツール', rating: '4'}, {questionId: 2, text: '使いやすいインターフェースと導入の容易さが差別化要因', rating: '5'}, {questionId: 3, text: '「簡単に使える」という評判が多い', rating: '4'}, {questionId: 4, text: '複数の顧客が売上改善に繋がった', rating: '5'}, {questionId: 5, text: '大規模データセットへの対応に課題がある', rating: '2'}]},
+                {name: '佐藤次郎', department: '営業部', position: '営業主任', joinDate: '2021-07-10', surveyLinkId: 'link-1', answers: [{questionId: 1, text: 'サーベイツール', rating: '3'}, {questionId: 2, text: '導入に手間がかかるが、導入後の効果が大きい', rating: '3'}, {questionId: 3, text: '人によって言い方がばらばらな気がする', rating: '2'}, {questionId: 4, text: 'いくつか事例は知っているが詳しくない', rating: '3'}, {questionId: 5, text: 'スモールビジネスには高いのではないか', rating: '4'}]},
+                {name: '鈴木太郎', department: '営業部', position: '営業アシスタント', joinDate: '2022-04-01', surveyLinkId: 'link-1', answers: [{questionId: 1, text: '組織のサーベイソリューション', rating: '2'}, {questionId: 2, text: 'よく分からない部分が多い', rating: '2'}, {questionId: 3, text: 'あまり共通の言葉を使っていないような気がする', rating: '1'}, {questionId: 4, text: '具体的な事例を知らない', rating: '1'}, {questionId: 5, text: '弱みについて考えたことがない', rating: '2'}]},
+                {name: '伊藤健太', department: '営業部', position: '営業', joinDate: '2022-06-15', surveyLinkId: 'link-1', answers: [{questionId: 1, text: 'クラウドサーベイシステム', rating: '4'}, {questionId: 2, text: '実装の速さと良いサポート', rating: '4'}, {questionId: 3, text: '割と「速い」という言葉がよく出ている', rating: '3'}, {questionId: 4, text: 'いくつか良い事例がある', rating: '4'}, {questionId: 5, text: 'カスタマイズがやや限定的', rating: '3'}]},
+                {name: '水野美咲', department: '営業部', position: '営業', joinDate: '2023-01-10', surveyLinkId: 'link-1', answers: [{questionId: 1, text: 'データ活用プラットフォーム', rating: '3'}, {questionId: 2, text: '統合型のアプローチが強み', rating: '3'}, {questionId: 3, text: '定義がやや曖昧', rating: '2'}, {questionId: 4, text: '変化を見た顧客がいるはず', rating: '3'}, {questionId: 5, text: 'UIの改善余地がある', rating: '3'}]},
+
+                // マーケティング部（6人）
+                {name: '森田彩子', department: 'マーケティング部', position: 'マーケティング部長', joinDate: '2018-05-10', surveyLinkId: 'link-2', answers: [{questionId: 1, text: 'オーガナイゼーション最適化プラットフォーム', rating: '5'}, {questionId: 2, text: 'AIベースの分析と組織開発の融合が差別化', rating: '5'}, {questionId: 3, text: '社内では「組織改革ツール」と統一されている', rating: '5'}, {questionId: 4, text: '顧客の組織改革に大きく貢献した複数事例がある', rating: '5'}, {questionId: 5, text: '導入前後の文化的抵抗への対応が課題', rating: '2'}]},
+                {name: '中村ゆり', department: 'マーケティング部', position: 'マーケティング課長', joinDate: '2019-08-01', surveyLinkId: 'link-2', answers: [{questionId: 1, text: '組織改善ソリューション', rating: '4'}, {questionId: 2, text: 'ホリスティックなアプローチと継続的サポート', rating: '5'}, {questionId: 3, text: 'マーケティングチーム内でも「改善ツール」で統一', rating: '4'}, {questionId: 4, text: '大手企業からのポジティブフィードバックが多い', rating: '5'}, {questionId: 5, text: '小規模組織での ROI が不明瞭な場合がある', rating: '1'}]},
+                {name: '田所拓也', department: 'マーケティング部', position: 'マーケティング課長', joinDate: '2020-02-15', surveyLinkId: 'link-2', answers: [{questionId: 1, text: 'エンプロイヤーエクスペリエンスプラットフォーム', rating: '4'}, {questionId: 2, text: 'EX 重視のコンセプトと継続サポート', rating: '4'}, {questionId: 3, text: 'チーム内でも意識は高いが言葉の定義は曖昧', rating: '3'}, {questionId: 4, text: 'いくつか成功事例を見ている', rating: '4'}, {questionId: 5, text: 'グローバル展開時の地域差への対応', rating: '2'}]},
+                {name: '岡本美優', department: 'マーケティング部', position: 'マーケティングスペシャリスト', joinDate: '2021-09-01', surveyLinkId: 'link-2', answers: [{questionId: 1, text: '人事向けサーベイツール', rating: '3'}, {questionId: 2, text: '安価さと導入の簡単さ', rating: '3'}, {questionId: 3, text: 'よく分からないという人も多い', rating: '2'}, {questionId: 4, text: '聞いたことがあるような気がするが詳しくない', rating: '2'}, {questionId: 5, text: 'フィードバックループが十分でない可能性', rating: '3'}]},
+                {name: '高橋健一', department: 'マーケティング部', position: 'マーケティング', joinDate: '2022-04-01', surveyLinkId: 'link-2', answers: [{questionId: 1, text: 'サーベイ・分析ツール', rating: '2'}, {questionId: 2, text: 'ぶっちゃけよく分からない', rating: '2'}, {questionId: 3, text: 'バラバラ', rating: '1'}, {questionId: 4, text: '聞いたことない', rating: '1'}, {questionId: 5, text: 'ほぼ全部', rating: '5'}]},
+                {name: '坂口有希', department: 'マーケティング部', position: 'マーケティング', joinDate: '2023-03-01', surveyLinkId: 'link-2', answers: [{questionId: 1, text: 'アナリティクスソリューション', rating: '3'}, {questionId: 2, text: 'ダッシュボード機能が分かりやすい', rating: '3'}, {questionId: 3, text: '定義が揃いきっていない部分がある', rating: '2'}, {questionId: 4, text: 'いくつか導入事例を聞いている', rating: '3'}, {questionId: 5, text: 'プリセットレポートが限定的', rating: '2'}]},
+
+                // 企画部（6人）
+                {name: '鈴木花子', department: '企画部', position: '企画部長', joinDate: '2017-12-01', surveyLinkId: 'link-3', answers: [{questionId: 1, text: '戦略的組織開発プラットフォーム', rating: '5'}, {questionId: 2, text: '経営戦略との連動性と長期的成長支援が差別化', rating: '4'}, {questionId: 3, text: '経営層でも「戦略ツール」として認識されている', rating: '5'}, {questionId: 4, text: '企業文化の変革に成功した複数事例がある', rating: '4'}, {questionId: 5, text: '変革期間の不確実性対応が課題', rating: '3'}]},
+                {name: '村田佳子', department: '企画部', position: '企画課長', joinDate: '2019-07-01', surveyLinkId: 'link-3', answers: [{questionId: 1, text: '組織診断ソリューション', rating: '4'}, {questionId: 2, text: '診断精度と実装支援の連携', rating: '5'}, {questionId: 3, text: '企画チーム内でも「診断ツール」で統一', rating: '4'}, {questionId: 4, text: 'いくつかの企業が変わったのを見ている', rating: '4'}, {questionId: 5, text: '実装後のモニタリング機能が不十分', rating: '2'}]},
+                {name: '林田太一', department: '企画部', position: '企画課長', joinDate: '2020-06-10', surveyLinkId: 'link-3', answers: [{questionId: 1, text: 'パルスサーベイプラットフォーム', rating: '3'}, {questionId: 2, text: 'リアルタイム性が売り', rating: '3'}, {questionId: 3, text: 'チーム内でも意見が分かれている', rating: '2'}, {questionId: 4, text: 'いくつか成功事例がある', rating: '3'}, {questionId: 5, text: 'データセキュリティ対応が業界基準を満たすかどうか', rating: '3'}]},
+                {name: '吉田恵美', department: '企画部', position: '企画員', joinDate: '2022-01-15', surveyLinkId: 'link-3', answers: [{questionId: 1, text: '社員エンゲージメント測定ツール', rating: '2'}, {questionId: 2, text: 'よく知らない部分がある', rating: '2'}, {questionId: 3, text: 'あいまいな説明が多い気がする', rating: '1'}, {questionId: 4, text: 'はっきりした成功事例を見ていない', rating: '2'}, {questionId: 5, text: 'セキュリティ面での心配がある', rating: '4'}]},
+                {name: '塚本武志', department: '企画部', position: '企画員', joinDate: '2022-08-01', surveyLinkId: 'link-3', answers: [{questionId: 1, text: 'エンゲージメント測定ツール', rating: '3'}, {questionId: 2, text: 'シンプルで分かりやすいと思う', rating: '3'}, {questionId: 3, text: 'もう少し定義を揃える必要がある', rating: '2'}, {questionId: 4, text: 'いくつか話を聞いている', rating: '3'}, {questionId: 5, text: 'グローバル対応がまだ不十分', rating: '3'}]},
+                {name: '原田優子', department: '企画部', position: '企画員', joinDate: '2023-02-01', surveyLinkId: 'link-3', answers: [{questionId: 1, text: '人材組織サーベイ', rating: '2'}, {questionId: 2, text: 'はっきり分からない', rating: '2'}, {questionId: 3, text: '説明にばらつきを感じる', rating: '1'}, {questionId: 4, text: '事例をあまり知らない', rating: '1'}, {questionId: 5, text: 'UI/UX に改善の余地がある', rating: '3'}]}
+            ];
+
+            const existing = localStorage.getItem(`respondents_${currentCompanyId}`);
+            if (!existing) {
+                localStorage.setItem(`respondents_${currentCompanyId}`, JSON.stringify(sampleRespondents));
+                surveyResponses = sampleRespondents;
+                document.getElementById('responseCount').textContent = `${surveyResponses.length}名の回答者`;
+                renderRespondentTable();
+            }
+        }
+
+        // ========================================
+        // レポート生成（13スライド）
+        // ========================================
+        function displayReport() {
+            const respondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+            if (respondents.length === 0) {
+                document.getElementById('slideContent').innerHTML = '<p style="color: #999;">回答データがありません</p>';
+                return;
+            }
+
+            allSlides = generateReportSlides(respondents);
+            currentSlide = 1;
+            document.getElementById('slideTotal').textContent = allSlides.length;
+            renderSlide(allSlides[0]);
+        }
+
+        function generateReportSlides(respondents) {
+            const slides = [];
+            const company = companies.find(c => c.id === currentCompanyId).name;
+
+            // スライド1: エグゼクティブサマリー
+            slides.push({
+                title: 'エグゼクティブサマリー',
+                html: generateExecutiveSummary(respondents, company)
+            });
+
+            // スライド2: 全体傾向分析
+            slides.push({
+                title: '全体傾向分析',
+                html: generateOverallTrends(respondents)
+            });
+
+            // スライド3-7: 各設問詳細分析（Q1-Q5）
+            for (let i = 0; i < 5; i++) {
+                slides.push({
+                    title: `Q${i+1}詳細分析: ${surveyQuestions[i].title.substring(0, 30)}...`,
+                    html: generateQuestionDetail(respondents, i)
+                });
+            }
+
+            // スライド8: 部署別比較
+            slides.push({
+                title: '部署別比較分析',
+                html: generateDepartmentComparison(respondents)
+            });
+
+            // スライド9: 4象限マップ
+            slides.push({
+                title: '4象限マップ分析',
+                html: generateQuadrantMap(respondents)
+            });
+
+            // スライド10: Box Plot分析
+            slides.push({
+                title: 'Box Plot分析（ばらつき分析）',
+                html: generateBoxPlotAnalysis(respondents)
+            });
+
+            // スライド11: No Decision分析
+            slides.push({
+                title: 'No Decision分析',
+                html: generateNoDecisionAnalysis(respondents)
+            });
+
+            // スライド12: 推奨アクションプラン
+            slides.push({
+                title: '推奨アクションプラン',
+                html: generateActionPlan(respondents)
+            });
+
+            // スライド13: 個人名付き回答一覧
+            slides.push({
+                title: '個人別回答詳細',
+                html: generateRespondentDetails(respondents)
+            });
+
+            return slides;
+        }
+
+        function generateExecutiveSummary(respondents, company) {
+            const avgScores = calculateAverageScores(respondents);
+            const variance = calculateVariance(respondents);
+
+            let insight = '組織内にズレが見られます：';
+            const highVar = variance.filter(v => v.variance > 1.5).map(v => `Q${v.qId}`);
+            if (highVar.length > 0) {
+                insight += `\n${highVar.join(', ')} で回答が分散。定義や理解が統一されていない可能性があります。`;
+            }
+
+            return `
+                <div class="slide-section">
+                    <div class="stat-box">
+                        <div class="stat-item">
+                            <div class="stat-label">企業名</div>
+                            <div class="stat-value" style="font-size: 16px;">${company}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">回答者数</div>
+                            <div class="stat-value">${respondents.length}名</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">調査日</div>
+                            <div class="stat-value" style="font-size: 14px;">${new Date().toLocaleDateString('ja-JP')}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-section">
+                    <div class="slide-subtitle">全体スコア（5点満点）</div>
+                    <div class="stat-box">
+                        ${avgScores.map(s => `
+                            <div class="stat-item">
+                                <div class="stat-label">Q${s.qId}</div>
+                                <div class="stat-value">${s.avg.toFixed(1)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="insight-box">
+                    <div class="insight-title">戦略ズレの診断</div>
+                    <div class="insight-text">${insight}</div>
+                </div>
+            `;
+        }
+
+        function generateOverallTrends(respondents) {
+            const avgScores = calculateAverageScores(respondents);
+            const distrib = calculateDistribution(respondents);
+
+            return `
+                <div class="slide-section">
+                    <div class="slide-subtitle">Q別平均スコア</div>
+                    <table class="comparison-table">
+                        <tr>
+                            <th>設問</th>
+                            <th>平均</th>
+                            <th>標準偏差</th>
+                            <th>①</th>
+                            <th>②</th>
+                            <th>③</th>
+                            <th>④</th>
+                            <th>⑤</th>
+                        </tr>
+                        ${avgScores.map(s => {
+                            const v = calculateVariance(respondents).find(v => v.qId === s.qId);
+                            const d = distrib[s.qId];
+                            return `
+                                <tr>
+                                    <td>Q${s.qId}</td>
+                                    <td>${s.avg.toFixed(2)}</td>
+                                    <td>${v.std_dev.toFixed(2)}</td>
+                                    <td>${d['1'] || 0}</td>
+                                    <td>${d['2'] || 0}</td>
+                                    <td>${d['3'] || 0}</td>
+                                    <td>${d['4'] || 0}</td>
+                                    <td>${d['5'] || 0}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </table>
+                </div>
+
+                <div class="insight-box">
+                    <div class="insight-title">分析ポイント</div>
+                    <div class="insight-text">
+                        • 平均スコアが低い（3以下）設問は、組織内で理解・認識が不足している可能性<br>
+                        • 標準偏差が大きい設問は、回答者間でのズレが大きい（定義が統一されていない）<br>
+                        • ①②の回答者が多い設問は「判断がつかない」状態が多いことを示唆
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateQuestionDetail(respondents, qIdx) {
+            const q = surveyQuestions[qIdx];
+            const scores = respondents.map(r => parseInt(r.answers[qIdx].rating));
+            const avgScore = scores.reduce((a, b) => a + b) / scores.length;
+
+            const examples = respondents.slice(0, 3).map((r, i) => `
+                <div style="margin-bottom: 10px; padding: 8px; background-color: white; border-left: 3px solid #ff6b6b;">
+                    <strong>${r.name}</strong> (スコア: ${r.answers[qIdx].rating})<br>
+                    「${r.answers[qIdx].text}」
+                </div>
+            `).join('');
+
+            const distrib = [1,2,3,4,5].map(rating => scores.filter(s => s === rating).length);
+
+            return `
+                <div class="slide-section">
+                    <div class="slide-subtitle">${q.title}</div>
+                    <div class="stat-box">
+                        <div class="stat-item">
+                            <div class="stat-label">平均スコア</div>
+                            <div class="stat-value">${avgScore.toFixed(1)}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">回答数</div>
+                            <div class="stat-value">${respondents.length}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-section">
+                    <div class="slide-subtitle">回答分布</div>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px;">
+                        ${[1,2,3,4,5].map((r, i) => `
+                            <div style="text-align: center; padding: 10px; background-color: #f0f8ff; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #1f4788;">⑤${r}</div>
+                                <div style="font-size: 18px; font-weight: 700;">${distrib[i]}</div>
+                                <div style="font-size: 11px; color: #666;">${(distrib[i]/respondents.length*100).toFixed(0)}%</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="slide-section">
+                    <div class="slide-subtitle">代表回答例</div>
+                    ${examples}
+                </div>
+            `;
+        }
+
+        function generateDepartmentComparison(respondents) {
+            const departments = ['営業部', 'マーケティング部', '企画部'];
+            const deptData = {};
+
+            departments.forEach(dept => {
+                const deptRes = respondents.filter(r => r.department === dept);
+                deptData[dept] = calculateAverageScores(deptRes);
+            });
+
+            return `
+                <div class="slide-section">
+                    <div class="slide-subtitle">部署別平均スコア比較</div>
+                    <table class="comparison-table">
+                        <tr>
+                            <th>部署</th>
+                            <th>Q1</th>
+                            <th>Q2</th>
+                            <th>Q3</th>
+                            <th>Q4</th>
+                            <th>Q5</th>
+                            <th>平均</th>
+                        </tr>
+                        ${departments.map(dept => {
+                            const data = deptData[dept];
+                            const avg = data.reduce((a, b) => a + b.avg, 0) / 5;
+                            return `
+                                <tr>
+                                    <td>${dept}</td>
+                                    ${data.map(d => `<td>${d.avg.toFixed(1)}</td>`).join('')}
+                                    <td style="font-weight: 700;">${avg.toFixed(1)}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </table>
+                </div>
+
+                <div class="insight-box">
+                    <div class="insight-title">部署間ズレの分析</div>
+                    <div class="insight-text">
+                        • 部署間で1.5点以上の差がある設問は、部署間での理解ギャップがある可能性<br>
+                        • 特に営業部とマーケティング部・企画部の差が大きい場合は、現場と企画層の乖離を示唆
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateQuadrantMap(respondents) {
+            const respondentData = respondents.map(r => ({
+                name: r.name,
+                q1: parseInt(r.answers[0].rating),
+                q3: parseInt(r.answers[2].rating)
+            }));
+
+            const quadrants = {
+                high_soft_high_consensus: respondentData.filter(r => r.q1 >= 4 && r.q3 >= 4),
+                high_soft_low_consensus: respondentData.filter(r => r.q1 >= 4 && r.q3 < 4),
+                low_soft_high_consensus: respondentData.filter(r => r.q1 < 4 && r.q3 >= 4),
+                low_soft_low_consensus: respondentData.filter(r => r.q1 < 4 && r.q3 < 4)
+            };
+
+            return `
+                <div class="slide-section">
+                    <div class="slide-subtitle">4象限マップ（Q1定義明確さ × Q3共通言語度）</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="background-color: #c8e6c9; padding: 15px; border-radius: 4px;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">✅ 定義明確＆共通言語</div>
+                        <div style="font-size: 12px;">${quadrants.high_soft_high_consensus.map(r => r.name).join(', ')}</div>
+                        <div style="font-size: 13px; font-weight: 600; margin-top: 5px;">${quadrants.high_soft_high_consensus.length}名</div>
+                    </div>
+
+                    <div style="background-color: #fff9c4; padding: 15px; border-radius: 4px;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">⚠️ 定義明確だが言語がバラバラ</div>
+                        <div style="font-size: 12px;">${quadrants.high_soft_low_consensus.map(r => r.name).join(', ')}</div>
+                        <div style="font-size: 13px; font-weight: 600; margin-top: 5px;">${quadrants.high_soft_low_consensus.length}名</div>
+                    </div>
+
+                    <div style="background-color: #ffccbc; padding: 15px; border-radius: 4px;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">⚠️ 定義が曖昧だが言語は統一</div>
+                        <div style="font-size: 12px;">${quadrants.low_soft_high_consensus.map(r => r.name).join(', ')}</div>
+                        <div style="font-size: 13px; font-weight: 600; margin-top: 5px;">${quadrants.low_soft_high_consensus.length}名</div>
+                    </div>
+
+                    <div style="background-color: #ffcdd2; padding: 15px; border-radius: 4px;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">🔴 定義曖昧＆言語バラバラ</div>
+                        <div style="font-size: 12px;">${quadrants.low_soft_low_consensus.map(r => r.name).join(', ')}</div>
+                        <div style="font-size: 13px; font-weight: 600; margin-top: 5px;">${quadrants.low_soft_low_consensus.length}名</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateBoxPlotAnalysis(respondents) {
+            const departments = ['営業部', 'マーケティング部', '企画部'];
+            let html = '<div class="slide-section"><div class="slide-subtitle">部署別ばらつき分析（Box Plot）</div>';
+
+            departments.forEach(dept => {
+                const deptRes = respondents.filter(r => r.department === dept);
+                const variance = calculateVariance(deptRes);
+
+                html += `
+                    <div style="margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">
+                        <div style="font-weight: 600; margin-bottom: 10px;">${dept}</div>
+                        <table class="comparison-table" style="margin: 0;">
+                            <tr>
+                                <th>Q</th>
+                                <th>平均</th>
+                                <th>標準偏差</th>
+                                <th>ばらつき度</th>
+                            </tr>
+                            ${variance.map(v => `
+                                <tr>
+                                    <td>Q${v.qId}</td>
+                                    <td>${v.avg.toFixed(2)}</td>
+                                    <td>${v.std_dev.toFixed(2)}</td>
+                                    <td>${v.variance > 1.5 ? '高' : v.variance > 0.8 ? '中' : '低'}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="insight-box">
+                    <div class="insight-title">ばらつき分析の意味</div>
+                    <div class="insight-text">
+                        • 標準偏差が大きい = 部署内でも回答がバラバラ = 理解や認識がまちまち<br>
+                        • 特に営業部と企画部でばらつきが異なる場合、思考方法や優先度の差を示唆
+                    </div>
+                </div>
+            `;
+
+            return html + '</div>';
+        }
+
+        function generateNoDecisionAnalysis(respondents) {
+            const lowDecisionCount = respondents.reduce((sum, r) => {
+                const lowRatings = r.answers.filter(a => parseInt(a.rating) <= 2).length;
+                return sum + lowRatings;
+            }, 0);
+
+            const totalAnswers = respondents.length * 5;
+            const lowDecisionRatio = (lowDecisionCount / totalAnswers * 100).toFixed(1);
+
+            return `
+                <div class="slide-section">
+                    <div class="slide-subtitle">判断度の低さ（①②の回答比率）</div>
+                    <div class="stat-box">
+                        <div class="stat-item">
+                            <div class="stat-label">低判断度の回答</div>
+                            <div class="stat-value">${lowDecisionCount}件</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">全回答に占める割合</div>
+                            <div class="stat-value">${lowDecisionRatio}%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">判定</div>
+                            <div class="stat-value" style="font-size: 14px; color: ${lowDecisionRatio > 30 ? '#dc3545' : '#28a745'}">
+                                ${lowDecisionRatio > 30 ? '高リスク' : '正常'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight-box">
+                    <div class="insight-title">判定基準</div>
+                    <div class="insight-text">
+                        • 低判断度比率 &gt; 30% = 「何を言うべきか分からない」状態が多い<br>
+                        • このような状況下では、経営的な意思決定が難しい可能性がある<br>
+                        • 特に営業部でこの傾向が強い場合、顧客対応に支障が出る可能性
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateActionPlan(respondents) {
+            const avgScores = calculateAverageScores(respondents);
+            const variance = calculateVariance(respondents);
+            const actions = [];
+
+            variance.forEach(v => {
+                if (v.variance > 1.5) {
+                    actions.push(`Q${v.qId}のばらつきが大きい → 「定義共有ワークショップ」を開催し、チーム内で「一言定義」を統一する`);
+                }
+            });
+
+            avgScores.forEach(s => {
+                if (s.avg < 3) {
+                    actions.push(`Q${s.qId}の平均スコアが低い → 理解度向上プログラムを企画し、段階的に認識を高める`);
+                }
+            });
+
+            const depts = ['営業部', 'マーケティング部', '企画部'];
+            depts.forEach(dept => {
+                const deptRes = respondents.filter(r => r.department === dept);
+                const deptAvg = calculateAverageScores(deptRes).reduce((a, b) => a + b.avg, 0) / 5;
+                if (deptAvg < 3) {
+                    actions.push(`${dept}の全体スコアが低い → ${dept}向けの集中研修や情報共有の場を増やす`);
+                }
+            });
+
+            if (actions.length === 0) {
+                actions.push('組織全体の理解度が一定水準に達しているため、継続的なフォローアップと改善を推奨します');
+            }
+
+            return `
+                <div class="slide-section">
+                    <div class="slide-subtitle">推奨アクション</div>
+                    <ul class="action-list">
+                        ${actions.map(a => `<li>${a}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="insight-box">
+                    <div class="insight-title">実行のポイント</div>
+                    <div class="insight-text">
+                        • アクションの優先順位：ばらつき改善 → スコア向上 → 部署間格差解消<br>
+                        • 実行期間：短期（1-3ヶ月）→ 中期（3-6ヶ月）→ 長期（6-12ヶ月）で段階実施<br>
+                        • 効果測定：3ヶ月後に再調査実施し、スコア改善を確認
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateRespondentDetails(respondents) {
+            let html = '<div class="slide-section"><div class="slide-subtitle">個人別回答詳細</div>';
+            html += '<table class="comparison-table"><tr>';
+            html += '<th>氏名</th><th>部署</th>';
+            for (let i = 0; i < 5; i++) {
+                html += `<th>Q${i+1}</th>`;
+            }
+            html += '</tr>';
+
+            respondents.forEach(r => {
+                html += `<tr><td>${r.name}</td><td>${r.department}</td>`;
+                r.answers.forEach(a => {
+                    html += `<td>${a.rating}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</table></div>';
+            return html;
+        }
+
+        // ========================================
+        // ユーティリティ関数
+        // ========================================
+        function calculateAverageScores(respondents) {
+            const result = [];
+            for (let i = 0; i < 5; i++) {
+                const scores = respondents.map(r => parseInt(r.answers[i].rating));
+                const avg = scores.reduce((a, b) => a + b) / scores.length;
+                result.push({ qId: i + 1, avg });
+            }
+            return result;
+        }
+
+        function calculateVariance(respondents) {
+            const result = [];
+            for (let i = 0; i < 5; i++) {
+                const scores = respondents.map(r => parseInt(r.answers[i].rating));
+                const avg = scores.reduce((a, b) => a + b) / scores.length;
+                const variance = scores.reduce((sum, s) => sum + Math.pow(s - avg, 2), 0) / scores.length;
+                const std_dev = Math.sqrt(variance);
+                result.push({ qId: i + 1, avg, variance, std_dev });
+            }
+            return result;
+        }
+
+        function calculateDistribution(respondents) {
+            const result = {};
+            for (let i = 0; i < 5; i++) {
+                result[i + 1] = {};
+                respondents.forEach(r => {
+                    const rating = r.answers[i].rating;
+                    result[i + 1][rating] = (result[i + 1][rating] || 0) + 1;
+                });
+            }
+            return result;
+        }
+
+        function renderSlide(slide) {
+            const content = document.getElementById('slideContent');
+            content.innerHTML = `
+                <div class="slide-title">${slide.title}</div>
+                ${slide.html}
+            `;
+            document.getElementById('slideCounter').textContent = currentSlide;
+        }
+
+        function nextSlide() {
+            if (currentSlide < allSlides.length) {
+                currentSlide++;
+                renderSlide(allSlides[currentSlide - 1]);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                renderSlide(allSlides[currentSlide - 1]);
+            }
+        }
+
+        // ========================================
+        // PDF ダウンロード
+        // ========================================
+        function downloadReportPDF() {
+            const company = companies.find(c => c.id === currentCompanyId).name;
+            const element = document.getElementById('slideContent');
+            const opt = {
+                margin: 10,
+                filename: `${company}_report_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function downloadReportSlides() {
+            const company = companies.find(c => c.id === currentCompanyId).name;
+            const container = document.createElement('div');
+
+            allSlides.forEach(slide => {
+                const slideDiv = document.createElement('div');
+                slideDiv.style.pageBreakAfter = 'always';
+                slideDiv.innerHTML = `
+                    <div class="slide-content">
+                        <div class="slide-title">${slide.title}</div>
+                        ${slide.html}
+                    </div>
+                `;
+                container.appendChild(slideDiv);
+            });
+
+            const opt = {
+                margin: 10,
+                filename: `${company}_slides_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(container).save();
+        }
+
+        // ========================================
+        // Google Slides エクスポート
+        // ========================================
+        function exportToGoogleSlides() {
+            const company = companies.find(c => c.id === currentCompanyId).name;
+            const respondents = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`)) || [];
+
+            // Google Slides形式でのJSON構造を作成
+            const slidesData = allSlides.map((slide, idx) => {
+                return {
+                    title: slide.title,
+                    index: idx + 1,
+                    content: slide.html
+                };
+            });
+
+            // JSONをダウンロード（後でGoogle SlidesのAPIで使用可能）
+            const dataStr = JSON.stringify({
+                company: company,
+                createdAt: new Date().toISOString(),
+                respondentCount: respondents.length,
+                slides: slidesData
+            }, null, 2);
+
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${company}_slides_data_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+
+            alert('スライドデータ（JSON形式）をダウンロードしました。このファイルはGoogle Slides APIで処理可能です。');
+        }
+
+        // ========================================
+        // サーベイモード
+        // ========================================
+        function initializeSurveyMode() {
+            const companyId = new URLSearchParams(window.location.search).get('company');
+            const linkId = new URLSearchParams(window.location.search).get('linkId');
+            currentCompanyId = companyId || 'sample-corp';
+            isAdminMode = false;
+            currentQuestionIndex = -1; // ユーザー情報入力画面から開始
+
+            document.body.innerHTML = `
+                <div style="background-color: #f5f5f5; min-height: 100vh; padding: 40px 20px;">
+                    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #1f4788; margin-bottom: 10px;">CharmSurvey</h1>
+                            <p style="color: #666; font-size: 14px;">組織サーベイにご協力ください</p>
+                        </div>
+
+                        <div id="surveyContainer"></div>
+                    </div>
+                </div>
+            `;
+
+            renderSurveyQuestions();
+        }
+
+        function renderSurveyQuestions() {
+            const container = document.getElementById('surveyContainer');
+
+            // ユーザー情報入力画面
+            if (currentQuestionIndex === -1) {
+                container.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="color: #1f4788; font-size: 16px; margin-bottom: 20px;">ご回答者情報をご入力ください</h2>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px;">氏名 <span style="color: #ff6b6b;">*</span></label>
+                            <input type="text" id="respondentName" placeholder="例：田中太郎" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 14px;">
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px;">部署 <span style="color: #ff6b6b;">*</span></label>
+                            <select id="respondentDepartment" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 14px;">
+                                <option value="">部署を選択してください</option>
+                                <option value="営業部">営業部</option>
+                                <option value="マーケティング部">マーケティング部</option>
+                                <option value="企画部">企画部</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px;">役職</label>
+                            <input type="text" id="respondentPosition" placeholder="例：営業課長" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 14px;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px;">入社日</label>
+                            <input type="date" id="respondentJoinDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 14px;">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="startSurvey()" style="width: 100%; padding: 12px; font-size: 15px;">アンケートを開始 →</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const q = surveyQuestions[currentQuestionIndex];
+
+            if (!q) {
+                container.innerHTML = '<p style="text-align: center; color: #28a745; font-size: 16px; font-weight: 600;">ご回答ありがとうございました！</p>';
+                return;
+            }
+
+            const progress = ((currentQuestionIndex + 1) / 5) * 100;
+
+            container.innerHTML = `
+                <div style="width: 100%; height: 8px; background-color: #e8e8e8; border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
+                    <div style="height: 100%; background-color: #1f4788; width: ${progress}%; transition: width 0.3s;"></div>
+                </div>
+                <p style="text-align: center; font-size: 12px; color: #999; margin-bottom: 20px;">${currentQuestionIndex + 1} / 5</p>
+
+                <div class="question-block">
+                    <div class="question-label">Q${q.id}: ${q.title}</div>
+
+                    <div style="margin: 20px 0;">
+                        <label style="font-size: 12px; color: #666; margin-bottom: 10px; display: block;">${q.textQuestion}</label>
+                        <textarea id="textAnswer" maxlength="${q.textMaxLength}" style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;"></textarea>
+                        <div style="font-size: 11px; color: #999; margin-top: 5px;">最大${q.textMaxLength}文字</div>
+                    </div>
+
+                    <div style="margin: 20px 0;">
+                        <label style="font-size: 12px; color: #666; margin-bottom: 10px; display: block;">${q.ratingQuestion}</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px;">
+                            ${q.ratingOptions.map((opt, idx) => `
+                                <label style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-align: center; cursor: pointer; transition: all 0.3s; font-size: 12px;">
+                                    <input type="radio" name="rating" value="${idx + 1}" style="margin-right: 5px;">
+                                    ${opt}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="previousQuestion()" style="flex: 1; ${currentQuestionIndex === 0 ? 'opacity: 0.5; cursor: not-allowed;' : ''}">← 前へ</button>
+                        <button class="btn btn-primary" onclick="nextQuestion()" style="flex: 1;">
+                            ${currentQuestionIndex === 4 ? '完了' : '次へ →'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startSurvey() {
+            const name = document.getElementById('respondentName').value.trim();
+            const department = document.getElementById('respondentDepartment').value.trim();
+
+            if (!name || !department) {
+                alert('氏名と部署は必須項目です');
+                return;
+            }
+
+            const position = document.getElementById('respondentPosition').value.trim();
+            const joinDate = document.getElementById('respondentJoinDate').value;
+
+            surveyResponses = [{
+                name: name,
+                department: department,
+                position: position,
+                joinDate: joinDate || new Date().toISOString().split('T')[0],
+                answers: []
+            }];
+
+            currentQuestionIndex = 0;
+            renderSurveyQuestions();
+        }
+
+        function nextQuestion() {
+            const textAnswer = document.getElementById('textAnswer').value;
+            const ratingAnswer = document.querySelector('input[name="rating"]:checked');
+
+            if (!textAnswer.trim() || !ratingAnswer) {
+                alert('すべてのフィールドに入力してください');
+                return;
+            }
+
+            if (!surveyResponses[0]) {
+                surveyResponses = [{
+                    name: '',
+                    department: '',
+                    position: '',
+                    joinDate: new Date().toISOString().split('T')[0],
+                    answers: []
+                }];
+            }
+
+            surveyResponses[0].answers.push({
+                questionId: currentQuestionIndex + 1,
+                text: textAnswer,
+                rating: ratingAnswer.value
+            });
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= 5) {
+                saveSurveyResponse();
+            } else {
+                renderSurveyQuestions();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderSurveyQuestions();
+            }
+        }
+
+        function saveSurveyResponse() {
+            const linkId = new URLSearchParams(window.location.search).get('linkId') || 'link-default';
+            const existing = JSON.parse(localStorage.getItem(`respondents_${currentCompanyId}`) || '[]');
+            existing.push({
+                name: surveyResponses[0].name,
+                department: surveyResponses[0].department,
+                position: surveyResponses[0].position,
+                joinDate: surveyResponses[0].joinDate,
+                surveyLinkId: linkId,
+                answers: surveyResponses[0].answers
+            });
+            localStorage.setItem(`respondents_${currentCompanyId}`, JSON.stringify(existing));
+            renderSurveyQuestions();
+        }
+
+        // ========================================
+        // ページロード
+        // ========================================
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+
+
+</body></html>
