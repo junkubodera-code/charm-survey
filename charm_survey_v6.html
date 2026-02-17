@@ -643,7 +643,7 @@
                     <div class="section-title">アンケート配布</div>
                     <div class="form-group">
                         <label>回答者専用リンク</label>
-                        <div class="link-display" id="surveyLink">https://charm-survey-production.up.railway.app/?mode=survey&amp;company=sample-corp&amp;linkId=link-1771292396385</div>
+                        <div class="link-display" id="surveyLink">リンクを生成してください</div>
                         <button class="btn btn-primary btn-sm" onclick="generateSurveyLink()" style="margin-right: 10px;">リンク生成</button>
                         <button class="btn btn-secondary btn-sm" onclick="copySurveyLink()">コピー</button>
                         <button class="btn btn-secondary btn-sm" onclick="previewSurvey()">プレビュー</button>
@@ -1481,47 +1481,7 @@
             <div id="questions" class="tab-content">
                 <div class="section">
                     <div class="section-title">設問管理</div>
-                    <div id="questionsList">
-                <div class="question-block" id="question-block-0">
-                    <div class="question-label">Q1: 当社のサービス／事業を一言で表すと？</div>
-                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
-                        記述：20〜30文字 | 上記の回答はどれくらい自信を持って言えますか？
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(0)">編集</button>
-                </div>
-            
-                <div class="question-block" id="question-block-1">
-                    <div class="question-label">Q2: 当社のサービスについて、他社ではなく当社が選ばれる理由を説明できますか？</div>
-                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
-                        記述：300文字以内 | 上記の説明にどれくらい自信がありますか？
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(1)">編集</button>
-                </div>
-            
-                <div class="question-block" id="question-block-2">
-                    <div class="question-label">Q3: 社内で当社サービスの魅力を語る際、使われている言葉や表現はどの程度共通していると感じますか？</div>
-                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
-                        記述：300文字以内（理由） | 言葉や表現の共通度
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(2)">編集</button>
-                </div>
-            
-                <div class="question-block" id="question-block-3">
-                    <div class="question-label">Q4: 当社サービスが、顧客の意思決定や行動を変えた事例を思い浮かべることができますか？</div>
-                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
-                        記述：300文字以内 | 事例の具体性・量
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(3)">編集</button>
-                </div>
-            
-                <div class="question-block" id="question-block-4">
-                    <div class="question-label">Q5: 当社サービスの「向いていないケース」や「弱み・課題」を説明できますか？</div>
-                    <div style="font-size: 12px; color: #999; margin: 8px 0;">
-                        記述：300文字以内 | 説明の明確さ
-                    </div>
-                    <button class="btn btn-primary btn-sm" onclick="startEditQuestion(4)">編集</button>
-                </div>
-            </div>
+                    <div id="questionsList"></div>
                 </div>
             </div>
 
@@ -1768,7 +1728,9 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
         }
 
         function deleteCompany(companyId) {
-            if (confirm(`「${companies.find(c => c.id === companyId).name}」を削除してもよろしいですか？`)) {
+            const companyToDelete = companies.find(c => c.id === companyId);
+            const companyName = companyToDelete ? companyToDelete.name : companyId;
+            if (confirm(`「${companyName}」を削除してもよろしいですか？`)) {
                 companies = companies.filter(c => c.id !== companyId);
                 localStorage.setItem('companies', JSON.stringify(companies));
                 if (currentCompanyId === companyId && companies.length > 0) {
@@ -1786,7 +1748,7 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
         function selectCompany(companyId) {
             currentCompanyId = companyId;
             const company = companies.find(c => c.id === companyId);
-            document.getElementById('companyName').textContent = company.name;
+            document.getElementById('companyName').textContent = company ? company.name : companyId;
             renderCompanyList();
             loadRespondents();
             loadSurveyLinks();
@@ -2104,7 +2066,8 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
 
         function generateReportSlides(respondents) {
             const slides = [];
-            const company = companies.find(c => c.id === currentCompanyId).name;
+            const companyObj = companies.find(c => c.id === currentCompanyId);
+            const company = companyObj ? companyObj.name : currentCompanyId;
 
             // スライド1: エグゼクティブサマリー
             slides.push({
@@ -2621,7 +2584,8 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
         // PDF ダウンロード
         // ========================================
         function downloadReportPDF() {
-            const company = companies.find(c => c.id === currentCompanyId).name;
+            const companyObj = companies.find(c => c.id === currentCompanyId);
+            const company = companyObj ? companyObj.name : currentCompanyId;
             const element = document.getElementById('slideContent');
             const opt = {
                 margin: 10,
@@ -2634,7 +2598,8 @@ Q3, Q4 で回答が分散。定義や理解が統一されていない可能性�
         }
 
         function downloadReportSlides() {
-            const company = companies.find(c => c.id === currentCompanyId).name;
+            const companyObj = companies.find(c => c.id === currentCompanyId);
+            const company = companyObj ? companyObj.name : currentCompanyId;
             const container = document.createElement('div');
 
             allSlides.forEach(slide => {
